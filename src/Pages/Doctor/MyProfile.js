@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { colors } from "../Constants/Colors";
+import { colors } from "../../Constants/Colors";
 import { FiAlertCircle } from "react-icons/fi"; // Import alert icon
 import { FaRegSadTear } from "react-icons/fa"; // Import "Not Found" icon
 

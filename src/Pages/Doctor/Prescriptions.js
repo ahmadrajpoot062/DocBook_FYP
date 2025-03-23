@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { colors } from "../Constants/Colors";
+import { colors } from "../../Constants/Colors";
 import { motion } from "framer-motion";
 
 function Input({ className, ...props }) {

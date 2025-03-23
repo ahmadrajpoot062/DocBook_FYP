@@ -9,3 +9,4 @@ export const sidebarNavLinks = [
   { to: "/my_appointments", icon: <FiCalendar size={18} />, text: "Appointments" },
   { to: "/logout", icon: <FiLogOut size={18} />, text: "Logout", isLogout: true }, // Logout link with red color
 ];
+

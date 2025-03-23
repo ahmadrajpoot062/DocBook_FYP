@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { motion, AnimatePresence } from "framer-motion";
-import { colors } from "../Constants/Colors";
+import { colors } from "../../Constants/Colors";
 
 function CreatePrescription() {
   const [patientName, setPatientName] = useState("");
@@ -23,7 +23,7 @@ function CreatePrescription() {
       schedule,
       instructions,
     };
-    setQrValue(JSON.stringify(prescriptionData));
+    setQrValue(JSON.stringify(prescriptionData)); // Ensure JSON.stringify is used
     setShowQRCode(true);
     setShowSuccessModal(true);
 

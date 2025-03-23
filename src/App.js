@@ -2,21 +2,27 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
-import CreatePrescription from "./Pages/CreatePrescription"
-import Prescriptions from "./Pages/Prescriptions";
-import MyProfile from "./Pages/MyProfile";
-import Patients from "./Pages/Patients";
-import Appointments from "./Pages/Appointments";
+import CreatePrescription from "./Pages/Doctor/CreatePrescription";
+import Prescriptions from "./Pages/Doctor/Prescriptions";
+import MyProfile from "./Pages/Doctor/MyProfile";
+import Patients from "./Pages/Doctor/Patients";
+import Appointments from "./Pages/Doctor/Appointments";
 import About from "./Pages/About";
 import Help from "./Pages/Help";
 import Home from "./Pages/Home";
 import LoginPage from "./Pages/LoginPage";
 import SignUpPage from "./Pages/SignUpPage";
-import Contact from "./Pages/Contact"
-import Sidebar from "./Components/Sidebar"
-import Dashboard from "./Pages/Dashboard";
+import Contact from "./Pages/Contact";
+import Sidebar from "./Components/Sidebar";
+import DoctorDashboard from "./Pages/Doctor/Dashboard"; // Default import
+import PatientDashboard from "./Pages/Patient/Dashboard"; // Default import
+import ViewPrescriptions from "./Pages/Patient/ViewPrescriptions";
+import Reminders from "./Pages/Patient/Reminders";
+import ScanPrescription from "./Pages/Patient/ScanPrescription";
 
 function App() {
+  const userType = "patient"; // or "patient" based on the logged-in user
+
   return (
     // for all users 
     // <Router> {/* Ensure Router is correctly used here */}
@@ -36,23 +42,37 @@ function App() {
     //   </div>
     // </Router>
 
-    // for doctors
-
+    // for doctors and patients
     <Router>
       <div className="App flex min-h-screen">
         {/* Sidebar on the left */}
-        <Sidebar />
+        <Sidebar userType={userType} /> {/* Pass userType as a prop */}
 
         {/* Main content on the right */}
-        <div className="content flex-1 p-4 ml-64"> {/* Adjust margin to match sidebar width */}
+        <div className="content flex-1 p-4 ml-64">
+          {/* Adjust margin to match sidebar width */}
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/create_prescription" element={<CreatePrescription />} />
-            <Route path="/prescriptions" element={<Prescriptions />} />
-            <Route path="/patients" element={<Patients />} />
-            <Route path="/my_profile" element={<MyProfile />} /> 
-            <Route path="/my_appointments" element={<Appointments />} /> 
-            {/* Add other routes as needed */}
+            {/* Doctor Routes */}
+            {userType === "doctor" && (
+              <>
+                <Route path="/" element={<DoctorDashboard />} />
+                <Route path="/create_prescription" element={<CreatePrescription />} />
+                <Route path="/prescriptions" element={<Prescriptions />} />
+                <Route path="/patients" element={<Patients />} />
+                <Route path="/my_profile" element={<MyProfile />} />
+                <Route path="/my_appointments" element={<Appointments />} />
+              </>
+            )}
+
+            {/* Patient Routes */}
+            {userType === "patient" && (
+              <>
+                <Route path="/" element={<PatientDashboard />} />
+                <Route path="/scan_prescription" element={<ScanPrescription />} />
+                <Route path="/view_prescriptions" element={<ViewPrescriptions />} />
+                <Route path="/Reminders" element={<Reminders />} />
+              </>
+            )}
           </Routes>
         </div>
       </div>
@@ -61,4 +81,3 @@ function App() {
 }
 
 export default App;
-

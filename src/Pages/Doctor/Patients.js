@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { colors } from "../Constants/Colors";
+import { colors } from "../../Constants/Colors";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaUserAlt, FaEnvelope, FaCalendarAlt, FaUserFriends, FaSearch } from 'react-icons/fa';
 

@@ -1,12 +1,18 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
-import { sidebarNavLinks } from "../Constants/sidebarNavConfig"; // Import the sidebar navigation config
 import { colors } from "../Constants/Colors";
 import { FaUserMd, FaSignOutAlt, FaTimes, FaCheck } from "react-icons/fa"; // Import icons from react-icons
 import { motion, AnimatePresence } from "framer-motion"; // Import for animations
 
-const Sidebar = () => {
+// Import sidebar navigation configs
+import { sidebarNavLinks as doctorNavLinks } from "../Constants/Doctor/sidebarNavConfig";
+import { sidebarNavLinks as patientNavLinks } from "../Constants/Patient/sidebarNavConfig";
+
+const Sidebar = ({ userType }) => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+  // Determine which navigation links to use based on userType
+  const sidebarNavLinks = userType === "doctor" ? doctorNavLinks : patientNavLinks;
 
   const handleLogoutClick = () => {
     setIsLogoutModalOpen(true);
@@ -90,14 +96,14 @@ const Sidebar = () => {
                 boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
               }}
             >
-              DR
+              {userType === "doctor" ? "DR" : "PT"}
             </div>
             <div>
               <p className="text-sm font-medium" style={{ color: colors.black }}>
-                Dr. Rehan
+                {userType === "doctor" ? "Dr. Rehan" : "Patient Name"}
               </p>
               <p className="text-xs" style={{ color: colors.black }}>
-                Administrator
+                User
               </p>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FaCalendarAlt, FaSearch, FaExclamationTriangle, FaTimes, FaCheck } from "react-icons/fa";
-import { colors } from '../Constants/Colors'; // Import colors
+import { colors } from '../../Constants/Colors'; // Import colors
 import { motion, AnimatePresence } from 'framer-motion'; // Import for animations
 
 const Appointments = () => {

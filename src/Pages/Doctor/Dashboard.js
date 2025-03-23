@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { colors } from '../Constants/Colors';
+import { colors } from '../../Constants/Colors';
 import { FiClock, FiUserPlus, FiFileText, FiBarChart2, FiUser, FiFilePlus, FiCheck } from "react-icons/fi";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from 'react-router-dom';
-import { sidebarNavLinks } from '../Constants/sidebarNavConfig';
+import { sidebarNavLinks } from '../../Constants/Doctor/sidebarNavConfig';
 
 // Reusable StatCard Component
 const StatCard = ({ icon: Icon, title, value, onClick, color }) => {
