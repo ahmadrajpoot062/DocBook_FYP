@@ -4,7 +4,7 @@ import { Menu, X } from "lucide-react";
 import { IoMdLogIn } from "react-icons/io";
 import { FaUserMd } from "react-icons/fa"; // Import the doctor icon
 import { colors } from "../Constants/Colors";
-import { navLinks } from "../Constants/navigationConfig"; // Import the navigation config
+import { navLinks } from "../Constants/navbarNavConfig"; // Import the navigation config
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);

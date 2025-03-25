@@ -3,7 +3,7 @@ import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { colors } from "../Constants/Colors";
-import { navLinks } from "../Constants/navigationConfig"; // Import the navigation config
+import { navLinks } from "../Constants/navbarNavConfig"; // Import the navigation config
 
 function Footer({ trigger }) {
   const { ref, inView } = useInView({ triggerOnce: false, threshold: 0.2 });

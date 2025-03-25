@@ -21,62 +21,58 @@ import Reminders from "./Pages/Patient/Reminders";
 import ScanPrescription from "./Pages/Patient/ScanPrescription";
 
 function App() {
-  const userType = "patient"; // or "patient" based on the logged-in user
+  const userType = "doctor"; // or "patient"
 
   return (
+    
     // for all users 
-    // <Router> {/* Ensure Router is correctly used here */}
-    //   <div className="App">
-    //     <Navbar />
-    //     <div className="content pt-16">
-    //       <Routes>
-    //         <Route path="/" element={<Home />} />
-    //         <Route path="/about" element={<About />} />
-    //         <Route path="/help" element={<Help />} />
-    //         <Route path="/login" element={<LoginPage />} />
-    //         <Route path="/signup" element={<SignUpPage />} />
-    //         <Route path="/contact" element={<Contact />} />
-    //       </Routes>
-    //     </div>
-    //     <Footer />
-    //   </div>
-    // </Router>
-
-    // for doctors and patients
-    <Router>
-      <div className="App flex min-h-screen">
-        {/* Sidebar on the left */}
-        <Sidebar userType={userType} /> {/* Pass userType as a prop */}
-
-        {/* Main content on the right */}
-        <div className="content flex-1 p-4 ml-64">
-          {/* Adjust margin to match sidebar width */}
+    <Router> {/* Ensure Router is correctly used here */}
+      <div className="App">
+        <Navbar />
+        <div className="content pt-16">
           <Routes>
-            {/* Doctor Routes */}
-            {userType === "doctor" && (
-              <>
-                <Route path="/" element={<DoctorDashboard />} />
-                <Route path="/create_prescription" element={<CreatePrescription />} />
-                <Route path="/prescriptions" element={<Prescriptions />} />
-                <Route path="/patients" element={<Patients />} />
-                <Route path="/my_profile" element={<MyProfile />} />
-                <Route path="/my_appointments" element={<Appointments />} />
-              </>
-            )}
-
-            {/* Patient Routes */}
-            {userType === "patient" && (
-              <>
-                <Route path="/" element={<PatientDashboard />} />
-                <Route path="/scan_prescription" element={<ScanPrescription />} />
-                <Route path="/view_prescriptions" element={<ViewPrescriptions />} />
-                <Route path="/Reminders" element={<Reminders />} />
-              </>
-            )}
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/help" element={<Help />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/contact" element={<Contact />} />
           </Routes>
         </div>
+        <Footer />
       </div>
     </Router>
+
+    // for doctor and patient
+    // <Router>
+    //   <div className="App flex min-h-screen">
+    //     <Sidebar userType={userType} />
+        
+    //     <div className="content flex-1 p-4 lg:ml-64">
+    //       <Routes>
+    //         {userType === "doctor" && (
+    //           <>
+    //             <Route path="/" element={<DoctorDashboard />} />
+    //             <Route path="/create_prescription" element={<CreatePrescription />} />
+    //             <Route path="/prescriptions" element={<Prescriptions />} />
+    //             <Route path="/patients" element={<Patients />} />
+    //             <Route path="/my_profile" element={<MyProfile />} />
+    //             <Route path="/my_appointments" element={<Appointments />} />
+    //           </>
+    //         )}
+
+    //         {userType === "patient" && (
+    //           <>
+    //             <Route path="/" element={<PatientDashboard />} />
+    //             <Route path="/scan_prescription" element={<ScanPrescription />} />
+    //             <Route path="/view_prescriptions" element={<ViewPrescriptions />} />
+    //             <Route path="/Reminders" element={<Reminders />} />
+    //           </>
+    //         )}
+    //       </Routes>
+    //     </div>
+    //   </div>
+    // </Router>
   );
 }
 

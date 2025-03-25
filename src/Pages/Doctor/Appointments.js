@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FaCalendarAlt, FaSearch, FaExclamationTriangle, FaTimes, FaCheck } from "react-icons/fa";
-import { colors } from '../../Constants/Colors'; // Import colors
-import { motion, AnimatePresence } from 'framer-motion'; // Import for animations
+import { colors } from '../../Constants/Colors';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
@@ -10,7 +10,7 @@ const Appointments = () => {
   const [searchDate, setSearchDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(6); // Initialize with default value
 
   // Animation variants
   const containerVariants = {
@@ -33,6 +33,23 @@ const Appointments = () => {
     }
   };
 
+  // Responsive items per page
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 640) { // Mobile
+        setItemsPerPage(4);
+      } else if (window.innerWidth < 768) { // Tablet
+        setItemsPerPage(6);
+      } else { // Desktop
+        setItemsPerPage(10);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Call initially
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   useEffect(() => {
     // Simulated API call
     setTimeout(() => {
@@ -40,11 +57,11 @@ const Appointments = () => {
         id: i + 1,
         patientName: `Patient ${i + 1}`,
         patientEmail: `patient${i + 1}@example.com`,
-        date: `2024-02-${String(i % 30 + 1).padStart(2, '0')}`, // Random dates in February 2024
-        time: "10:00 AM"
+        date: `2024-02-${String(i % 30 + 1).padStart(2, '0')}`,
+        time: `${9 + (i % 8)}:${i % 2 === 0 ? '00' : '30'} ${i % 2 === 0 ? 'AM' : 'PM'}`
       }));
       setAppointments(mockAppointments);
-      setFilteredAppointments(mockAppointments); // Initialize filtered appointments
+      setFilteredAppointments(mockAppointments);
       setLoading(false);
     }, 1000);
   }, []);
@@ -53,9 +70,9 @@ const Appointments = () => {
     if (searchDate) {
       const filtered = appointments.filter(appointment => appointment.date === searchDate);
       setFilteredAppointments(filtered);
-      setCurrentPage(1); // Reset to the first page after search
+      setCurrentPage(1);
     } else {
-      setFilteredAppointments(appointments); // Reset to all appointments if no date is selected
+      setFilteredAppointments(appointments);
     }
   };
 
@@ -78,26 +95,26 @@ const Appointments = () => {
 
   return (
     <div 
-      className="min-h-screen p-4 sm:p-6"
+      className="min-h-screen p-3 sm:p-4 md:p-6"
       style={{ backgroundColor: colors.background }}
     >
       {/* Professional header */}
       <motion.div
-        className="w-full max-w-5xl mx-auto mb-6"
+        className="w-full max-w-5xl mx-auto mb-4 sm:mb-6 mt-10 md:mt-7 lg:mt-0"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <div className="text-center">
           <h1 
-            className="text-2xl sm:text-3xl font-bold mb-2"
+            className="text-xl sm:text-2xl md:text-3xl font-bold mb-2"
             style={{ color: colors.black }}
           >
             Appointments
           </h1>
-          <div className="w-24 h-1 mx-auto mb-4" style={{ backgroundColor: colors.primary }}></div>
-          <p className="text-sm sm:text-base" style={{ color: colors.black }}>
-            View and manage your scheduled appointments with patients
+          <div className="w-16 sm:w-20 md:w-24 h-1 mx-auto mb-3 sm:mb-4" style={{ backgroundColor: colors.primary }}></div>
+          <p className="text-xs sm:text-sm md:text-base" style={{ color: colors.black }}>
+            View and manage your scheduled appointments
           </p>
         </div>
       </motion.div>
@@ -109,9 +126,9 @@ const Appointments = () => {
         initial="hidden"
         animate="visible"
       >
-        {/* Header - Updated with primary background */}
+        {/* Header */}
         <div 
-          className="p-4 sm:p-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4"
+          className="p-3 sm:p-4 md:p-6 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4"
           style={{ backgroundColor: colors.primary }}
         >
           <motion.div 
@@ -119,13 +136,13 @@ const Appointments = () => {
             variants={itemVariants}
           >
             <div 
-              className="w-10 h-10 rounded-full flex items-center justify-center mr-3"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center mr-2 sm:mr-3"
               style={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
             >
-              <FaCalendarAlt style={{ color: colors.white }} />
+              <FaCalendarAlt className="text-sm sm:text-base" style={{ color: colors.white }} />
             </div>
             <h2 
-              className="text-xl font-bold"
+              className="text-lg sm:text-xl font-bold"
               style={{ color: colors.white }}
             >
               Appointments List
@@ -133,18 +150,18 @@ const Appointments = () => {
           </motion.div>
           
           <motion.div 
-            className="flex"
+            className="flex w-full sm:w-auto"
             variants={itemVariants}
           >
             <input 
               type="date" 
-              className="border p-2 rounded-l-md focus:outline-none" 
+              className="border p-2 rounded-l-md focus:outline-none text-xs sm:text-sm w-full"
               style={{ borderColor: colors.white }}
               value={searchDate} 
               onChange={(e) => setSearchDate(e.target.value)}
             />
             <motion.button 
-              className="p-2 rounded-r-md flex items-center justify-center"
+              className="p-2 rounded-r-md flex items-center justify-center text-sm sm:text-base"
               style={{ backgroundColor: colors.secondary, color: colors.primary }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -156,71 +173,74 @@ const Appointments = () => {
         </div>
         
         {/* Content */}
-        <div className="p-4 sm:p-6 bg-white">
+        <div className="p-3 sm:p-4 md:p-6 bg-white">
           <AnimatePresence>
             {loading ? (
               <motion.div 
-                className="flex justify-center items-center py-12"
+                className="flex justify-center items-center py-8 sm:py-12"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <div className="w-12 h-12 border-t-4 border-b-4 rounded-full animate-spin" 
+                <div className="w-10 h-10 sm:w-12 sm:h-12 border-t-4 border-b-4 rounded-full animate-spin" 
                      style={{ borderColor: colors.primary }}></div>
               </motion.div>
             ) : filteredAppointments.length === 0 ? (
               <motion.div 
-                className="flex flex-col items-center py-12"
+                className="flex flex-col items-center py-8 sm:py-12"
                 variants={itemVariants}
               >
                 <div 
-                  className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
+                  className="w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center mb-3 sm:mb-4"
                   style={{ backgroundColor: `${colors.red}15` }}
                 >
-                  <FaExclamationTriangle style={{ color: colors.red, fontSize: "1.5rem" }} />
+                  <FaExclamationTriangle className="text-lg sm:text-xl" style={{ color: colors.red }} />
                 </div>
                 <h2 
-                  className="text-xl font-bold mb-2"
+                  className="text-lg sm:text-xl font-bold mb-1 sm:mb-2"
                   style={{ color: colors.black }}
                 >
                   No Appointments Found
                 </h2>
-                <p style={{ color: colors.black }}>No appointments match the selected date</p>
+                <p className="text-xs sm:text-sm" style={{ color: colors.black }}>
+                  No appointments match the selected date
+                </p>
               </motion.div>
             ) : (
               <>
                 <motion.div 
-                  className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"
                   variants={containerVariants}
                 >
                   {currentAppointments.map((appointment) => (
                     <motion.div 
                       key={appointment.id} 
-                      className="p-4 rounded-lg shadow-sm"
+                      className="p-3 sm:p-4 rounded-lg shadow-sm"
                       style={{ backgroundColor: colors.secondary }}
                       variants={itemVariants}
+                      whileHover={{ y: -5 }}
                     >
                       <h3 
-                        className="text-lg font-semibold mb-2"
+                        className="text-base sm:text-lg font-semibold mb-1 sm:mb-2"
                         style={{ color: colors.black }}
                       >
                         {appointment.patientName}
                       </h3>
                       <p 
-                        className="text-sm mb-2"
+                        className="text-xs sm:text-sm mb-1 sm:mb-2 truncate"
                         style={{ color: colors.black }}
                       >
                         {appointment.patientEmail}
                       </p>
                       <p 
-                        className="flex items-center text-sm mb-3"
+                        className="flex items-center text-xs sm:text-sm mb-2 sm:mb-3"
                         style={{ color: colors.black }}
                       >
-                        <FaCalendarAlt className="mr-2" style={{ color: colors.primary }} />
+                        <FaCalendarAlt className="mr-1 sm:mr-2 text-xs sm:text-sm" style={{ color: colors.primary }} />
                         {appointment.date} at {appointment.time}
                       </p>
                       <motion.button 
-                        className="w-full p-2 rounded-lg text-sm font-medium flex items-center justify-center"
+                        className="w-full p-2 rounded-lg text-xs sm:text-sm font-medium flex items-center justify-center"
                         style={{ 
                           backgroundColor: `${colors.red}10`,
                           color: colors.red,
@@ -240,11 +260,11 @@ const Appointments = () => {
                 </motion.div>
                 
                 <motion.div 
-                  className="flex justify-between items-center mt-6"
+                  className="flex flex-col sm:flex-row justify-between items-center mt-4 sm:mt-6 gap-3 sm:gap-0"
                   variants={itemVariants}
                 >
                   <motion.button 
-                    className="px-4 py-2 rounded-lg text-sm font-medium"
+                    className="px-3 sm:px-4 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-medium w-full sm:w-auto"
                     style={{ 
                       backgroundColor: currentPage === 1 ? `${colors.primary}30` : colors.primary,
                       color: currentPage === 1 ? colors.black : colors.white,
@@ -258,12 +278,12 @@ const Appointments = () => {
                     Previous
                   </motion.button>
                   
-                  <p style={{ color: colors.black }}>
+                  <p className="text-xs sm:text-sm" style={{ color: colors.black }}>
                     Page {currentPage} of {Math.ceil(filteredAppointments.length / itemsPerPage)}
                   </p>
                   
                   <motion.button 
-                    className="px-4 py-2 rounded-lg text-sm font-medium"
+                    className="px-3 sm:px-4 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-medium w-full sm:w-auto"
                     style={{ 
                       backgroundColor: currentPage === Math.ceil(filteredAppointments.length / itemsPerPage) ? `${colors.primary}30` : colors.primary,
                       color: currentPage === Math.ceil(filteredAppointments.length / itemsPerPage) ? colors.black : colors.white,
@@ -287,13 +307,13 @@ const Appointments = () => {
       <AnimatePresence>
         {selectedAppointment && (
           <motion.div 
-            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4"
+            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-3 sm:p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
             <motion.div 
-              className="rounded-lg shadow-xl max-w-md w-full relative overflow-hidden"
+              className="rounded-lg shadow-xl max-w-xs sm:max-w-sm md:max-w-md w-full relative overflow-hidden"
               style={{ backgroundColor: colors.secondary }}
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -302,17 +322,17 @@ const Appointments = () => {
             >
               {/* Modal header */}
               <div 
-                className="p-4 relative"
+                className="p-3 sm:p-4 relative"
                 style={{ backgroundColor: colors.primary }}
               >
                 <h2 
-                  className="text-xl font-bold text-center"
+                  className="text-lg sm:text-xl font-bold text-center"
                   style={{ color: colors.white }}
                 >
                   Confirm Cancellation
                 </h2>
                 <motion.button
-                  className="absolute right-4 top-4 text-lg"
+                  className="absolute right-3 sm:right-4 top-3 sm:top-4 text-base sm:text-lg"
                   style={{ color: colors.white }}
                   whileHover={{ scale: 1.1, rotate: 90 }}
                   whileTap={{ scale: 0.9 }}
@@ -323,17 +343,17 @@ const Appointments = () => {
               </div>
               
               {/* Modal content */}
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <p 
-                  className="mb-6 text-center"
+                  className="mb-4 sm:mb-6 text-center text-xs sm:text-sm"
                   style={{ color: colors.black }}
                 >
-                  Do you want to cancel the appointment with <span className="font-bold" style={{ color: colors.black }}>{selectedAppointment.patientName}</span> on {selectedAppointment.date} at {selectedAppointment.time}?
+                  Do you want to cancel the appointment with <span className="font-bold">{selectedAppointment.patientName}</span> on {selectedAppointment.date} at {selectedAppointment.time}?
                 </p>
                 
-                <div className="flex justify-center gap-4">
+                <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-3 md:gap-4">
                   <motion.button 
-                    className="px-5 py-2 rounded-lg text-sm font-medium flex items-center"
+                    className="px-3 sm:px-4 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center justify-center"
                     style={{ 
                       backgroundColor: colors.red,
                       color: colors.white
@@ -342,12 +362,12 @@ const Appointments = () => {
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setSelectedAppointment(null)}
                   >
-                    <FaTimes className="mr-2" />
+                    <FaTimes className="mr-1 sm:mr-2" />
                     No, Keep It
                   </motion.button>
                   
                   <motion.button 
-                    className="px-5 py-2 rounded-lg text-sm font-medium flex items-center"
+                    className="px-3 sm:px-4 py-1 sm:py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center justify-center"
                     style={{ 
                       backgroundColor: colors.primary,
                       color: colors.white
@@ -355,7 +375,7 @@ const Appointments = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <FaCheck className="mr-2" />
+                    <FaCheck className="mr-1 sm:mr-2" />
                     Yes, Cancel
                   </motion.button>
                 </div>

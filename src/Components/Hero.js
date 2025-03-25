@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Stethoscope, User } from "lucide-react";
 import { motion } from "framer-motion";
-import { colors } from "../Constants/Colors"; // Import colors
+import { colors } from "../Constants/Colors";
 
 const Hero = () => {
     const navigate = useNavigate();
@@ -12,94 +12,159 @@ const Hero = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
-            className="relative py-20 px-6 sm:px-8 lg:px-12 shadow-inner"
+            className="relative py-16 sm:py-20 md:py-24 lg:py-28 px-6 sm:px-8 lg:px-12 bg-gradient-to-br from-blue-50 to-white"
+            style={{ backgroundColor: colors.background }}
         >
-            {/* Inner Shadows */}
-            <div className="absolute inset-x-0 top-0 h-10  pointer-events-none"></div>
-            <div className="absolute inset-x-0 bottom-0 h-10 pointer-events-none"></div>
+            {/* Decorative elements */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-0 left-0 w-32 h-32 rounded-full bg-blue-100 opacity-20 mix-blend-multiply filter blur-xl"></div>
+                <div className="absolute bottom-0 right-0 w-32 h-32 rounded-full bg-blue-200 opacity-20 mix-blend-multiply filter blur-xl"></div>
+            </div>
 
             <div className="max-w-7xl mx-auto text-center relative z-10">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mb-6 leading-tight">
-                    Welcome to{" "}
-                    <span
-                        className="bg-clip-text text-transparent"
-                        style={{
-                            backgroundColor: colors.primary
-                        }}
+                <motion.div
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.8 }}
+                    className="mb-8 sm:mb-10 md:mb-12"
+                >
+                    <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 sm:mb-6 leading-tight">
+                        Welcome to{" "}
+                        <span 
+                            className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-blue-700"
+                            style={{
+                                backgroundImage: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryDark})`
+                            }}
+                        >
+                            DocBook
+                        </span>
+                    </h1>
+
+                    <motion.p
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.3, duration: 0.8 }}
+                        className="text-lg sm:text-xl md:text-2xl max-w-3xl mx-auto text-gray-600"
+                        style={{ color: colors.text }}
                     >
-                       DocBook
-                    </span>
-                </h1>
+                        Revolutionizing healthcare with seamless doctor-patient connections, appointment management, and medical records access.
+                    </motion.p>
+                </motion.div>
 
-                <p className="text-base sm:text-lg md:text-xl lg:text-2xl mb-12 max-w-3xl mx-auto" style={{ color: colors.black }}>
-                    A seamless platform connecting doctors and patients for effortless appointment scheduling,
-                    medical records management, and better healthcare services.
-                </p>
-
-                <div className="flex flex-col md:flex-row justify-center items-center gap-6 md:gap-8">
-                    {/* For Doctors Section */}
+                <motion.div 
+                    className="flex flex-col md:flex-row justify-center items-center gap-6 md:gap-8 lg:gap-10"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5, duration: 0.8 }}
+                >
+                    {/* For Doctors Card */}
                     <motion.div
                         initial={{ y: 30, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
-                        className="w-full max-w-sm md:max-w-md lg:max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl flex flex-col justify-between"
-                        style={styles.divBox}
+                        transition={{ duration: 0.8, delay: 0.6 }}
+                        className="w-full max-w-sm md:max-w-md lg:max-w-lg p-8 sm:p-10 rounded-2xl shadow-lg flex flex-col justify-between"
+                        style={{ 
+                            backgroundColor: colors.white,
+                            border: `1px solid ${colors.border}`,
+                            boxShadow: `0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)`
+                        }}
+                        whileHover={{ y: -5 }}
                     >
                         <div className="flex flex-col items-center">
-                            <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-                                <Stethoscope className="w-12 sm:w-14 h-12 sm:h-14" style={{ color: colors.primary }} />
+                            <motion.div 
+                                className="mb-6 p-4 rounded-full bg-blue-50"
+                                animate={{ 
+                                    scale: [1, 1.05, 1],
+                                    rotate: [0, 5, -5, 0]
+                                }}
+                                transition={{ 
+                                    repeat: Infinity, 
+                                    duration: 4,
+                                    ease: "easeInOut"
+                                }}
+                            >
+                                <Stethoscope className="w-12 h-12 sm:w-14 sm:h-14" style={{ color: colors.primary }} />
                             </motion.div>
-                            <h2 className="text-xl sm:text-2xl font-bold" style={{ color: colors.black }}>For Doctors</h2>
-                            <p className="text-sm sm:text-lg text-center mt-2" style={{ color: colors.black }}>
-                                Manage appointments, track patient history, and provide better care with our digital tools.
+                            <h2 className="text-2xl sm:text-3xl font-bold mb-4" style={{ color: colors.primary }}>
+                                For Doctors
+                            </h2>
+                            <p className="text-base sm:text-lg text-center text-gray-600 mb-6" style={{ color: colors.text }}>
+                                Streamline your practice with digital tools for appointments, patient records, and telemedicine.
                             </p>
                         </div>
                         <motion.button
                             onClick={() => navigate("/signup")}
-                            className="w-full font-semibold px-5 sm:px-6 py-2 sm:py-3 rounded-lg hover:shadow-md transition-all duration-300 mt-4"
-                            style={{ backgroundColor: colors.white, color: colors.primary }}
-                            whileHover={{ scale: 1.05 }}
+                            className="w-full font-semibold px-6 py-3 rounded-lg transition-all duration-300"
+                            style={{ 
+                                backgroundColor: colors.primary,
+                                color: colors.white
+                            }}
+                            whileHover={{ 
+                                scale: 1.03,
+                                boxShadow: `0 10px 15px -3px rgba(59, 130, 246, 0.3)`
+                            }}
+                            whileTap={{ scale: 0.98 }}
                         >
                             Get Started as Doctor
                         </motion.button>
                     </motion.div>
 
-                    {/* For Patients Section */}
+                    {/* For Patients Card */}
                     <motion.div
                         initial={{ y: 30, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        transition={{ duration: 0.8, delay: 0.4 }}
-                        className="w-full max-w-sm md:max-w-md lg:max-w-lg p-6 sm:p-8 rounded-2xl shadow-xl flex flex-col justify-between"
-                        style={styles.divBox}
+                        transition={{ duration: 0.8, delay: 0.8 }}
+                        className="w-full max-w-sm md:max-w-md lg:max-w-lg p-8 sm:p-10 rounded-2xl shadow-lg flex flex-col justify-between"
+                        style={{ 
+                            backgroundColor: colors.white,
+                            border: `1px solid ${colors.border}`,
+                            boxShadow: `0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)`
+                        }}
+                        whileHover={{ y: -5 }}
                     >
                         <div className="flex flex-col items-center">
-                            <motion.div animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 1.5 }}>
-                                <User className="w-12 sm:w-14 h-12 sm:h-14" style={{ color: colors.primary }} />
+                            <motion.div 
+                                className="mb-6 p-4 rounded-full bg-blue-50"
+                                animate={{ 
+                                    scale: [1, 1.05, 1],
+                                    rotate: [0, -5, 5, 0]
+                                }}
+                                transition={{ 
+                                    repeat: Infinity, 
+                                    duration: 4,
+                                    ease: "easeInOut",
+                                    delay: 0.5
+                                }}
+                            >
+                                <User className="w-12 h-12 sm:w-14 sm:h-14" style={{ color: colors.primary }} />
                             </motion.div>
-                            <h2 className="text-xl sm:text-2xl font-bold" style={{ color: colors.black }}>For Patients</h2>
-                            <p className="text-sm sm:text-lg text-center mt-2" style={{ color: colors.black }}>
-                                Book appointments, access medical records, and connect with doctors effortlessly.
+                            <h2 className="text-2xl sm:text-3xl font-bold mb-4" style={{ color: colors.primary }}>
+                                For Patients
+                            </h2>
+                            <p className="text-base sm:text-lg text-center text-gray-600 mb-6" style={{ color: colors.text }}>
+                                Access quality healthcare with easy appointment booking and secure medical records.
                             </p>
                         </div>
                         <motion.button
                             onClick={() => navigate("/signup")}
-                            className="w-full font-semibold px-5 sm:px-6 py-2 sm:py-3 rounded-lg hover:shadow-md transition-all duration-300 mt-4"
-                            style={{ backgroundColor: colors.white, color: colors.primary }}
-                            whileHover={{ scale: 1.05 }}
+                            className="w-full font-semibold px-6 py-3 rounded-lg transition-all duration-300"
+                            style={{ 
+                                backgroundColor: colors.primary,
+                                color: colors.white
+                            }}
+                            whileHover={{ 
+                                scale: 1.03,
+                                boxShadow: `0 10px 15px -3px rgba(59, 130, 246, 0.3)`
+                            }}
+                            whileTap={{ scale: 0.98 }}
                         >
                             Get Started as Patient
                         </motion.button>
                     </motion.div>
-                </div>
+                </motion.div>
             </div>
         </motion.div>
     );
 };
 
 export default Hero;
-const styles = {
-    divBox: {
-        backgroundColor: colors.secondary
-    },
-    
-};

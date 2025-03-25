@@ -1,7 +1,7 @@
 // src/constants/colors.js
 export const colors = {
     primary: "#0080ff", // Dodger Blue
-    secondary:"#e6f2ff",
+    secondary:"#e6f2ff",  // Light Dodger Blue
     white: "#FFFFFF",
     black: "#000000",
     darkBlue: "0066cc",

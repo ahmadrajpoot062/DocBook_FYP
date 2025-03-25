@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { colors } from "../../Constants/Colors";
-import { FiAlertCircle } from "react-icons/fi"; // Import alert icon
-import { FaRegSadTear } from "react-icons/fa"; // Import "Not Found" icon
+import { FaUserMd, FaHospital, FaPhone, FaInfoCircle, FaCheckCircle, FaEdit } from "react-icons/fa";
+import { FiAlertCircle } from "react-icons/fi";
+import { FaRegSadTear, FaTimes } from "react-icons/fa";
 
 function MyProfile() {
   const [profile, setProfile] = useState({
@@ -12,10 +13,10 @@ function MyProfile() {
     contactNumber: "",
     bio: "",
   });
-  const [isProfileCreated, setIsProfileCreated] = useState(false); // Simulate profile creation status
-  const [showModal, setShowModal] = useState(!isProfileCreated); // Show modal if no profile is created
+  const [isProfileCreated, setIsProfileCreated] = useState(false);
+  const [showModal, setShowModal] = useState(!isProfileCreated);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showNotFound, setShowNotFound] = useState(false); // Show "Not Found" view
+  const [showNotFound, setShowNotFound] = useState(false);
 
   const handleChange = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -28,275 +29,389 @@ function MyProfile() {
 
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
-    setIsProfileCreated(true); // Simulate profile creation
+    setIsProfileCreated(true);
+    setShowModal(false);
   };
 
   const handleCreateProfile = () => {
-    setShowModal(false); // Close the "Profile Not Created" modal
+    setShowModal(false);
   };
 
   const handleCancelCreateProfile = () => {
-    setShowModal(false); // Close the "Profile Not Created" modal
-    setShowNotFound(true); // Show "Not Found" icon and button
+    setShowModal(false);
+    setShowNotFound(true);
   };
 
   const handleReopenCreateProfileModal = () => {
-    setShowNotFound(false); // Hide "Not Found" view
-    setShowModal(true); // Reopen the "Profile Not Created" modal
+    setShowNotFound(false);
+    setShowModal(true);
+  };
+
+  const handleEditProfile = () => {
+    setIsProfileCreated(false);
   };
 
   return (
-    <motion.div
-      className="flex flex-col items-center justify-center min-h-screen p-6"
+    <div
+      className="min-h-screen bg-gradient-to-br from-blue-50 to-white py-12 px-4 sm:px-6 lg:px-8"
       style={{ backgroundColor: colors.background }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
     >
-      {/* Header Section */}
-      <motion.div
-        className="text-center mb-8"
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <h1 className="text-4xl font-bold mb-2" style={{ color: colors.primary }}>
-          My Profile
-        </h1>
-        <p className="text-gray-500 text-lg">
-          {isProfileCreated
-            ? "View and update your profile information."
-            : "Create your profile to get started."}
-        </p>
-      </motion.div>
-
-      {/* Conditional Rendering */}
-      {showNotFound ? (
-        // Show "Not Found" Icon and "Create Profile" Button
+      <div className="max-w-5xl mx-auto">
+        {/* Header Section */}
         <motion.div
-          className="flex flex-col items-center justify-center text-center"
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5 }}
+          className="text-center mb-12"
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.3, duration: 0.5 }}
         >
-          <FaRegSadTear size={64} className="text-gray-400 mb-4" />
-          <h2 className="text-2xl font-bold mb-2" style={{ color: colors.primary }}>
-            Profile Not Found
-          </h2>
-          <p className="text-gray-500 mb-6">
-            You choose not to create a profile. Please create one to access your information.
-          </p>
-          <button
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all"
-            onClick={handleReopenCreateProfileModal} // Reopen "Profile Not Created" modal
-          >
-            Create Profile
-          </button>
-        </motion.div>
-      ) : isProfileCreated ? (
-        // Show Profile Information
-        <motion.div
-          className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-2xl"
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <h2 className="text-2xl font-bold mb-6" style={{ color: colors.primary }}>
-            Profile Information
-          </h2>
-          <div className="space-y-4">
-            <p>
-              <strong>Name:</strong> {profile.name}
-            </p>
-            <p>
-              <strong>Specialization:</strong> {profile.specialization}
-            </p>
-            <p>
-              <strong>Hospital:</strong> {profile.hospital}
-            </p>
-            <p>
-              <strong>Contact Number:</strong> {profile.contactNumber}
-            </p>
-            <p>
-              <strong>Bio:</strong> {profile.bio}
-            </p>
-          </div>
-          <motion.button
-            className="mt-6 w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all"
-            onClick={() => setIsProfileCreated(false)} // Switch to edit mode
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            Update Profile
-          </motion.button>
-        </motion.div>
-      ) : (
-        // Show Profile Form
-        <motion.form
-          className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-2xl"
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          onSubmit={handleSubmit}
-        >
-          <h2 className="text-2xl font-bold mb-6" style={{ color: colors.primary }}>
-            Create Your Profile
-          </h2>
-          <div className="space-y-6">
-            {/* Name and Specialization */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={profile.name}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                  placeholder="Enter your name"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">Specialization</label>
-                <input
-                  type="text"
-                  name="specialization"
-                  value={profile.specialization}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                  placeholder="Enter specialization"
-                />
-              </div>
-            </div>
-
-            {/* Hospital and Contact Number */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">Hospital</label>
-                <input
-                  type="text"
-                  name="hospital"
-                  value={profile.hospital}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                  placeholder="Enter hospital name"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 font-medium mb-2">Contact Number</label>
-                <input
-                  type="text"
-                  name="contactNumber"
-                  value={profile.contactNumber}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                  placeholder="Enter contact number"
-                />
-              </div>
-            </div>
-
-            {/* Bio */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">Bio</label>
-              <textarea
-                name="bio"
-                value={profile.bio}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                placeholder="Enter a short bio"
-                rows="4"
-              />
-            </div>
-
-            {/* Save Button */}
-            <motion.button
-              type="submit"
-              className="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              Save Profile
-            </motion.button>
-          </div>
-        </motion.form>
-      )}
-
-      {/* Profile Not Created Modal */}
-      <AnimatePresence>
-        {showModal && (
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+            My <span className="text-blue-600">Profile</span>
+          </h1>
           <motion.div
-            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            className="w-24 h-1.5 mx-auto rounded-full bg-gradient-to-r from-blue-400 to-blue-600"
+            initial={{ width: 0 }}
+            animate={{ width: 96 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+          />
+          <motion.p
+            className="text-lg text-gray-600 mt-6 max-w-2xl mx-auto"
+            initial={{ y: -10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.9, duration: 0.5 }}
           >
-            <motion.div
-              className="bg-white p-8 rounded-xl shadow-2xl text-center"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 100 }}
+            {isProfileCreated
+              ? "Manage your professional profile information"
+              : "Create your profile to get started"}
+          </motion.p>
+        </motion.div>
+
+        {/* Conditional Rendering */}
+        {showNotFound ? (
+          <motion.div
+            className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 p-8 text-center max-w-md mx-auto"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="flex justify-center mb-6">
+              <FaRegSadTear className="text-gray-400 text-5xl" />
+            </div>
+            <h2 className="text-xl font-bold mb-4" style={{ color: colors.primary }}>
+              Profile Not Found
+            </h2>
+            <p className="text-gray-600 mb-6">
+              You haven't created a profile yet. Please create one to access all features.
+            </p>
+            <motion.button
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+              onClick={handleReopenCreateProfileModal}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <div className="mb-4 flex items-center justify-center">
-                <FiAlertCircle size={36} className="text-red-500" /> {/* Alert icon */}
-              </div>
-              <h2 className="text-2xl font-bold mb-4" style={{ color: colors.primary }}>
-                Profile Not Found
+              Create Profile
+            </motion.button>
+          </motion.div>
+        ) : isProfileCreated ? (
+          <motion.div
+            className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <div className="bg-gradient-to-r from-blue-50 to-blue-100 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+                <FaUserMd className="text-blue-500 mr-2" />
+                Profile Information
               </h2>
-              <p className="text-gray-600 mb-6">
-                Your profile is not created yet. Please create your profile to proceed.
-              </p>
-              <div className="flex gap-4 justify-center">
-                <button
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all"
-                  onClick={handleCreateProfile} // Create Profile button
-                >
-                  Create Profile
-                </button>
-                <button
-                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-all"
-                  onClick={handleCancelCreateProfile} // Cancel button
+              <motion.button
+                className="text-blue-600 hover:text-blue-800 transition-colors"
+                onClick={handleEditProfile}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <FaEdit className="text-xl" />
+              </motion.button>
+            </div>
+
+            <div className="p-6">
+              <div className="space-y-6">
+                <div className="flex items-start">
+                  <div className="bg-blue-100 p-3 rounded-lg mr-4">
+                    <FaUserMd className="text-blue-600 text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Name & Specialization
+                    </h3>
+                    <p className="text-gray-900 font-medium">{profile.name || "Not provided"}</p>
+                    <p className="text-gray-600">{profile.specialization || "Not provided"}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start">
+                  <div className="bg-blue-100 p-3 rounded-lg mr-4">
+                    <FaHospital className="text-blue-600 text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Hospital
+                    </h3>
+                    <p className="text-gray-900">{profile.hospital || "Not provided"}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start">
+                  <div className="bg-blue-100 p-3 rounded-lg mr-4">
+                    <FaPhone className="text-blue-600 text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Contact Number
+                    </h3>
+                    <p className="text-gray-900">{profile.contactNumber || "Not provided"}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start">
+                  <div className="bg-blue-100 p-3 rounded-lg mr-4">
+                    <FaInfoCircle className="text-blue-600 text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Bio
+                    </h3>
+                    <p className="text-gray-700 whitespace-pre-line">
+                      {profile.bio || "Not provided"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.form
+            className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            onSubmit={handleSubmit}
+          >
+            <div className="bg-gradient-to-r from-blue-50 to-blue-100 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-gray-900">
+                {isProfileCreated ? "Update Profile" : "Create Profile"}
+              </h2>
+              <motion.button
+                type="button"
+                className="text-gray-500 hover:text-gray-700 transition-colors"
+                onClick={() => setIsProfileCreated(true)}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <FaTimes className="text-xl" />
+              </motion.button>
+            </div>
+
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={profile.name}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Dr. John Smith"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                    Specialization
+                  </label>
+                  <input
+                    type="text"
+                    name="specialization"
+                    value={profile.specialization}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Cardiologist"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                    Hospital
+                  </label>
+                  <input
+                    type="text"
+                    name="hospital"
+                    value={profile.hospital}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="City Medical Center"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                    Contact Number
+                  </label>
+                  <input
+                    type="tel"
+                    name="contactNumber"
+                    value={profile.contactNumber}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="+1 234 567 890"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  Professional Bio
+                </label>
+                <textarea
+                  name="bio"
+                  value={profile.bio}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[120px]"
+                  placeholder="Brief description about your professional background..."
+                  required
+                />
+              </div>
+
+              <div className="flex justify-end space-x-4">
+                <motion.button
+                  type="button"
+                  className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  onClick={() => setIsProfileCreated(true)}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                 >
                   Cancel
-                </button>
+                </motion.button>
+                <motion.button
+                  type="submit"
+                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Save Profile
+                </motion.button>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </motion.form>
         )}
-      </AnimatePresence>
 
-      {/* Success Modal */}
-      <AnimatePresence>
-        {showSuccessModal && (
-          <motion.div
-            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
+        {/* Profile Not Created Modal */}
+        <AnimatePresence>
+          {showModal && (
             <motion.div
-              className="bg-white p-8 rounded-xl shadow-2xl text-center"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 100 }}
+              className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 p-4 z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
             >
-              <div className="mb-6">
-                <span className="text-green-500 text-5xl">✔</span>
-              </div>
-              <h2 className="text-2xl font-bold mb-4">Success</h2>
-              <p className="text-gray-600 mb-6">Profile created successfully!</p>
-              <button
-                className="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all"
-                onClick={handleSuccessModalClose}
+              <motion.div
+                className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 w-full max-w-md"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 100 }}
               >
-                OK
-              </button>
+                <div className="bg-gradient-to-r from-blue-50 to-blue-100 px-6 py-4 border-b border-gray-200 flex items-center">
+                  <FiAlertCircle className="text-yellow-500 mr-2 text-xl" />
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Profile Required
+                  </h2>
+                </div>
+
+                <div className="p-6">
+                  <p className="text-gray-600 mb-6">
+                    You need to create a profile to access all features of the application.
+                    Would you like to create one now?
+                  </p>
+
+                  <div className="flex justify-end space-x-4">
+                    <motion.button
+                      className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                      onClick={handleCancelCreateProfile}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Maybe Later
+                    </motion.button>
+                    <motion.button
+                      className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                      onClick={handleCreateProfile}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      Create Now
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Success Modal */}
+        <AnimatePresence>
+          {showSuccessModal && (
+            <motion.div
+              className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 p-4 z-50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div
+                className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 w-full max-w-md"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 100 }}
+              >
+                <div className="bg-gradient-to-r from-blue-50 to-blue-100 px-6 py-4 border-b border-gray-200 flex items-center">
+                  <FaCheckCircle className="text-green-500 mr-2 text-xl" />
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    Success
+                  </h2>
+                </div>
+
+                <div className="p-6 text-center">
+                  <div className="flex justify-center mb-4">
+                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                      <FaCheckCircle className="text-green-500 text-3xl" />
+                    </div>
+                  </div>
+                  <p className="text-gray-600 mb-6">
+                    Your profile has been {isProfileCreated ? "updated" : "created"} successfully!
+                  </p>
+
+                  <motion.button
+                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                    onClick={handleSuccessModalClose}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Continue
+                  </motion.button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }
 
