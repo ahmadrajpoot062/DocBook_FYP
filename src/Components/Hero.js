@@ -93,7 +93,7 @@ const Hero = () => {
                             </p>
                         </div>
                         <motion.button
-                            onClick={() => navigate("/signup")}
+                            onClick={() => navigate("/signup", { state: { role: "doctor" } })}
                             className="w-full font-semibold px-6 py-3 rounded-lg transition-all duration-300"
                             style={{ 
                                 backgroundColor: colors.primary,
@@ -146,7 +146,7 @@ const Hero = () => {
                             </p>
                         </div>
                         <motion.button
-                            onClick={() => navigate("/signup")}
+                            onClick={() => navigate("/signup", { state: { role: "patient" } })}
                             className="w-full font-semibold px-6 py-3 rounded-lg transition-all duration-300"
                             style={{ 
                                 backgroundColor: colors.primary,

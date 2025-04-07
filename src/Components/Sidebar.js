@@ -24,6 +24,15 @@ const Sidebar = ({ userType }) => {
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => window.innerWidth < 1024 && setIsSidebarOpen(false);
 
+  const handleLogout = () => {
+    // Remove userRole and jwtToken from localStorage
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('jwtToken');
+    console.log("User logged out");
+    setIsLogoutModalOpen(false);
+    window.location.href = '/'; // Redirect to home page after logout
+  };
+
   const sidebarNavLinks = getSidebarNavLinks(userType);
 
   return (
@@ -179,10 +188,7 @@ const Sidebar = ({ userType }) => {
                     style={{ backgroundColor: colors.orange, color: colors.white }}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => {
-                      console.log("User logged out");
-                      setIsLogoutModalOpen(false);
-                    }}
+                    onClick={handleLogout}
                   >
                     <FaCheck className="mr-2" /> Yes, Logout
                   </motion.button>

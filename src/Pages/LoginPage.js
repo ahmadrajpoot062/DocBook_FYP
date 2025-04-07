@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { colors } from '../Constants/Colors';
+import axios from 'axios';
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaSignInAlt } from 'react-icons/fa';
 
 const LoginPage = () => {
     const [focusedFields, setFocusedFields] = useState({
@@ -43,10 +45,46 @@ const LoginPage = () => {
         setFormData(prev => ({ ...prev, [id]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Handle login logic here
-        console.log('Login submitted', formData);
+
+        try {
+            // Login request
+            const response = await axios.post('https://localhost:7253/api/Account/login', {
+                email: formData.email,
+                password: formData.password,
+            });
+
+            const { token } = response.data;
+
+            // Save the token to localStorage
+            localStorage.setItem('jwtToken', token);
+
+            alert("Login successful!");
+
+            // Fetch role request using email
+            const roleResponse = await axios.get(`https://localhost:7253/api/Account/role`, {
+                params: { email: formData.email },
+            });
+
+            const { role } = roleResponse.data;
+            localStorage.setItem('userRole', role);
+            alert(`Role: ${role}`);
+
+            // Navigate based on the role
+            if (role === 'Doctor') {
+                window.location.href = '/';
+            } else if (role === 'Patient') {
+                window.location.href = '/';
+            } else if (role === 'admin') {
+                navigate('/admin-dashboard');
+            } else {
+                alert('Unknown role. Please contact support.');
+            }
+        } catch (error) {
+            console.error('Error during login', error);
+            alert(error.response?.data?.message || 'Login failed. Please try again.');
+        }
     };
 
     return (
@@ -80,20 +118,21 @@ const LoginPage = () => {
                             </motion.div>
                         </div>
                         
-                        <h2 className="text-3xl font-bold mb-2 text-center" style={{ color: colors.primary }}>
-                            Welcome Back
+                        <h2 className="text-3xl font-bold mb-2 text-center flex items-center justify-center gap-2" style={{ color: colors.primary }}>
+                            <FaSignInAlt /> Welcome Back
                         </h2>
                         <p className="text-gray-500 text-center mb-8">Please enter your details</p>
 
                         <form onSubmit={handleSubmit}>
                             {/* Email Field */}
                             <div className="relative mb-6">
+                                <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                 <input
                                     type="email"
                                     id="email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200"
+                                    className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200"
                                     style={{ 
                                         borderColor: focusedFields.email ? colors.primary : '#d1d5db',
                                         focusRingColor: colors.primary 
@@ -103,7 +142,7 @@ const LoginPage = () => {
                                 />
                                 <label
                                     htmlFor="email"
-                                    className={`absolute left-4 transition-all duration-200 pointer-events-none ${
+                                    className={`absolute left-10 transition-all duration-200 pointer-events-none ${
                                         focusedFields.email || formData.email
                                             ? 'top-0 text-xs bg-white px-1 -mt-3'
                                             : 'top-3.5 text-gray-400'
@@ -119,12 +158,13 @@ const LoginPage = () => {
                             {/* Password Field */}
                             <div className="relative mb-6">
                                 <div className="relative">
+                                <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                     <input
                                         type={showPassword ? "text" : "password"}
                                         id="password"
                                         value={formData.password}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200 pr-10"
+                                        className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200 pr-10"
                                         style={{ 
                                             borderColor: focusedFields.password ? colors.primary : '#d1d5db',
                                             focusRingColor: colors.primary 
@@ -137,21 +177,12 @@ const LoginPage = () => {
                                         className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                                         onClick={() => setShowPassword(!showPassword)}
                                     >
-                                        {showPassword ? (
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                            </svg>
-                                        ) : (
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                            </svg>
-                                        )}
+                                        {showPassword ? <FaEye /> : <FaEyeSlash />}
                                     </button>
                                 </div>
                                 <label
                                     htmlFor="password"
-                                    className={`absolute left-4 transition-all duration-200 pointer-events-none ${
+                                    className={`absolute left-10 transition-all duration-200 pointer-events-none ${
                                         focusedFields.password || formData.password
                                             ? 'top-0 text-xs bg-white px-1 -mt-3'
                                             : 'top-3.5 text-gray-400'
@@ -194,14 +225,14 @@ const LoginPage = () => {
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 type="submit"
-                                className="w-full py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200 shadow-md"
+                                className="w-full py-3 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-opacity-50 transition-all duration-200 shadow-md flex items-center justify-center gap-2"
                                 style={{ 
                                     backgroundColor: colors.primary, 
                                     color: colors.white,
                                     focusRingColor: colors.primary
                                 }}
                             >
-                                Log In
+                                <FaSignInAlt /> Log In
                             </motion.button>
 
                             {/* Social Login */}
