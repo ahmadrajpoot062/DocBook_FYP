@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { colors } from '../Constants/Colors';
-import axios from 'axios';
+import ApiService from '../Services/ApiService';
 import { FaUser, FaEnvelope, FaVenusMars, FaUserMd, FaUserAlt, FaCheckCircle, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const SignUpPage = () => {
@@ -60,16 +60,17 @@ const SignUpPage = () => {
         }
 
         try {
-            const response = await axios.post('https://localhost:7253/api/Account/register', {
+            const userData = {
                 userName: formData.username,
                 email: formData.email,
                 password: formData.password,
                 role: formData.role,
                 gender: formData.gender
-            });
+            };
+
+            await ApiService.register(userData);
 
             alert('Signup successful');
-            console.log(response.data);
             navigate('/login');
         } catch (error) {
             if (error.response && error.response.data) {

@@ -34,6 +34,8 @@ import Contact from "./Pages/Contact";
 
 function App() {
   const userType = localStorage.getItem("userRole")?.toLowerCase(); // Get user type from local storage
+  const userEmail = localStorage.getItem('userEmail');
+
 
   return (
     <Router>
@@ -62,29 +64,29 @@ function App() {
               <Routes>
                 {userType === "doctor" && (
                   <>
-                    <Route path="/" element={<DoctorDashboard />} />
-                    <Route path="doctor/create_prescription" element={<CreatePrescription />} />
-                    <Route path="doctor/prescriptions" element={<Prescriptions />} />
-                    <Route path="doctor/patients" element={<Patients />} />
-                    <Route path="doctor/my_profile" element={<MyProfile />} />
-                    <Route path="doctor/my_appointments" element={<DoctorAppointments />} />
+                    <Route path="/" element={<DoctorDashboard userEmail={userEmail}/>} />
+                    <Route path="doctor/create_prescription" element={<CreatePrescription userEmail={userEmail}/>} />
+                    <Route path="doctor/prescriptions" element={<Prescriptions userEmail={userEmail}/>} />
+                    <Route path="doctor/patients" element={<Patients userEmail={userEmail}/>} />
+                    <Route path="doctor/my_profile" element={<MyProfile userEmail={userEmail}/>} />
+                    <Route path="doctor/my_appointments" element={<DoctorAppointments userEmail={userEmail}/>} />
                   </>
                 )}
 
                 {userType === "patient" && (
                   <>
-                    <Route path="/" element={<PatientDashboard />} />
-                    <Route path="patient/scan_prescription" element={<ScanPrescription />} />
-                    <Route path="patient/view_prescriptions" element={<ViewPrescriptions />} />
-                    <Route path="patient/doctors" element={<Doctors />} />
-                    <Route path="patient/doctors/Doctor_Profile" element={<DoctorProfile />} />
-                    <Route path="patient/doctors/Book_Appointment" element={<BookAppointment />} />
-                    <Route path="patient/doctors/Book_Appointment/Request_submitted" element={<RequestSubmitted />} />
-                    <Route path="patient/doctors/Doctor_Profile/Book_Appointment" element={<BookAppointment />} />
-                    <Route path="patient/doctors/Doctor_Profile/Book_Appointment/Request_submitted" element={<RequestSubmitted />} />
-                    <Route path="patient/Reminders" element={<Reminders />} />
-                    <Route path="patient/my_appointments" element={<PatientAppointments />} />
-                    <Route path="patient/my_appointments/AppointmentCancelled" element={<AppointmentCancelled />} />
+                    <Route path="/" element={<PatientDashboard userEmail={userEmail}/>} />
+                    <Route path="patient/scan_prescription" element={<ScanPrescription userEmail={userEmail}/>} />
+                    <Route path="patient/view_prescriptions" element={<ViewPrescriptions userEmail={userEmail}/>} />
+                    <Route path="patient/doctors" element={<Doctors userEmail={userEmail}/>} />
+                    <Route path="patient/doctors/Doctor_Profile" element={<DoctorProfile userEmail={userEmail}/>} />
+                    <Route path="patient/doctors/Book_Appointment" element={<BookAppointment userEmail={userEmail}/>} />
+                    <Route path="patient/doctors/Book_Appointment/Request_submitted" element={<RequestSubmitted userEmail={userEmail}/>} />
+                    <Route path="patient/doctors/Doctor_Profile/Book_Appointment" element={<BookAppointment userEmail={userEmail}/>} />
+                    <Route path="patient/doctors/Doctor_Profile/Book_Appointment/Request_submitted" element={<RequestSubmitted userEmail={userEmail}/>} />
+                    <Route path="patient/Reminders" element={<Reminders userEmail={userEmail}/>} />
+                    <Route path="patient/my_appointments" element={<PatientAppointments userEmail={userEmail}/>} />
+                    <Route path="patient/my_appointments/AppointmentCancelled" element={<AppointmentCancelled userEmail={userEmail}/>} />
                   </>
                 )}
               </Routes>

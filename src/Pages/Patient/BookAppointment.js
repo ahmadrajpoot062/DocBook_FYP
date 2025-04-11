@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   FaClock,
   FaCalendarAlt,
@@ -12,6 +13,8 @@ import {
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import ApiService from '../../Services/ApiService';
+
 
 // Animation variants (unchanged)
 const containerVariants = {
@@ -63,45 +66,102 @@ const renderRating = (rating) => {
 
 const BookAppointment = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [appointmentDate, setAppointmentDate] = useState("");
   const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showCalendarModal, setShowCalendarModal] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [patientId, setPatientId] = useState(null);
+  const [bookedSlots, setBookedSlots] = useState([]);
+
+  const patientEmail = localStorage.getItem("userEmail");
 
   const doctorData = {
-    name: "Dr. John Doe",
-    specialty: "Cardiologist",
-    experience: "15 Years",
+    id: location.state?.doctor?.id,
+    name: location.state?.doctor.name || "Dr. John Doe",
+    specialty: location.state?.doctor.speciality || "Cardiologist",
+    experience: location.state?.doctor.experience || "15 Years",
     rating: 4.8,
-    timings: "Monday - Friday: 10:00 AM - 4:00 PM",
-    charges: "2000 PKR",
+    timings: "Monday - Friday: "+location.state?.doctor.timings || "Monday - Friday: 10:00 AM - 4:00 PM",
+    charges: location.state?.doctor.charges + " PKR" || "2000 PKR",
     image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
   };
+  
+  useEffect(() => {
+    const fetchPatientId = async () => {
+      try {
+        const data = await ApiService.getPatientByEmail(patientEmail);
+        setPatientId(data.id);
+      } catch (error) {
+        console.error("Error fetching patient ID:", error);
+      }
+    };
+
+    if (patientEmail) {
+      fetchPatientId();
+    }
+  }, [patientEmail]);
+
+  const fetchBookedSlots = async (date) => {
+    try {
+      const data = await ApiService.getBookedSlots(doctorData.id, date);
+      setBookedSlots(data);
+    } catch (error) {
+      console.error("Error fetching booked slots:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (appointmentDate) {
+      fetchBookedSlots(appointmentDate);
+    }
+  }, [appointmentDate]);
 
   const showAvailableSlots = async (event) => {
     event.preventDefault();
-    if (!appointmentDate) return;
-
-    const slots = [
-      "09:00 AM - 09:30 AM",
-      "10:00 AM - 10:30 AM",
-      "11:00 AM - 11:30 AM",
-      "02:00 PM - 02:30 PM",
-      "03:00 PM - 03:30 PM",
-      "04:00 PM - 04:30 PM"
-    ];
-    setAvailableSlots(slots);
+    if (!appointmentDate || !doctorData.timings) return;
+  
+    const timeRange = doctorData.timings.replace("Monday - Friday: ", "").replace(" ", "").replace("–", "-");
+  
+    try {
+      const data = await ApiService.getAvailableTimeSlots(timeRange, 15);
+      setAvailableSlots(data);
+    } catch (error) {
+      console.error("Error fetching available slots:", error);
+    }
   };
+  
 
-  const confirmAppointment = () => {
-    // Navigate to the Request_submitted page instead of showing alert
-    navigate('Request_submitted');
-    setShowModal(false);
-    setSelectedSlot(null);
-    setAppointmentDate("");
-    setAvailableSlots([]);
+  const confirmAppointment = async () => {
+    if (!appointmentDate || !selectedSlot || !patientId) return;
+
+    try {
+      const appointmentData = {
+        doctorId: doctorData.id,
+        patientId: patientId,
+        appointmentDate: appointmentDate,
+        bookedSlots: selectedSlot,
+        status: "Pending",
+        notes: "",
+      };
+
+      const response = await ApiService.bookAppointment(appointmentData);
+
+      if (response.status === 201) {
+        navigate("Request_submitted");
+      } else {
+        console.error("Failed to create appointment:", response);
+      }
+    } catch (error) {
+      console.error("Error creating appointment:", error);
+    } finally {
+      setShowModal(false);
+      setSelectedSlot(null);
+      setAppointmentDate("");
+      setAvailableSlots([]);
+    }
   };
 
   const handleDateInputClick = () => {
@@ -170,7 +230,7 @@ const BookAppointment = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
     >
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* Header (unchanged) */}
         <motion.div
           className="text-center mb-6 sm:mb-8"
@@ -311,42 +371,35 @@ const BookAppointment = () => {
                       transition={{ duration: 0.3 }}
                       className="mb-4"
                     >
-                      <div className="flex items-center justify-between mb-3 sm:mb-4">
-                        <h4 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center">
-                          <FaClock className="text-blue-500 mr-2" />
-                          Available Time Slots
-                        </h4>
-                        {appointmentDate && (
-                          <span className="text-xs sm:text-sm text-gray-600 bg-blue-50 px-2 py-1 rounded">
-                            {new Date(appointmentDate).toLocaleDateString('en-US', { 
-                              weekday: 'short', 
-                              month: 'short', 
-                              day: 'numeric' 
-                            })}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
-                        {availableSlots.map((slot, index) => (
-                          <motion.button
-                            key={index}
-                            onClick={() => { setSelectedSlot(slot); setShowModal(true); }}
-                            className={`p-3 sm:p-3.5 border rounded-lg transition-all text-sm sm:text-base flex items-center justify-center
-                              ${selectedSlot === slot ? 
-                                'border-blue-600 bg-blue-50 text-blue-700 font-medium' : 
-                                'border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-gray-700'}
-                            `}
-                            whileHover={{
-                              y: -2,
-                              boxShadow: "0 4px 8px rgba(59, 130, 246, 0.1)"
-                            }}
-                            whileTap={{ scale: 0.98 }}
-                          >
-                            <FaClock className={`mr-2 ${selectedSlot === slot ? 'text-blue-500' : 'text-gray-500'}`} />
-                            {slot}
-                          </motion.button>
-                        ))}
+                      <div className="mt-6">
+                        <h4 className="text-lg font-semibold mb-3">Available Time Slots</h4>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-3">
+                          {availableSlots.map((slot, index) => {
+                            const isBooked = bookedSlots.includes(slot); // Check if the slot is in the booked slots array
+                            //alert(isBooked);
+                            return (
+                              <div key={index} className="col">
+                                {isBooked ? (
+                                  <div className="w-full h-full p-3 rounded-md bg-gradient-to-r from-red-600 to-red-900 text-white flex flex-col items-center justify-center text-center shadow">
+                                    <FaClock className="mb-1 text-lg" />
+                                    <span>{slot}</span>
+                                  </div>
+                                ) : (
+                                  <button
+                                    className="w-full h-full p-3 rounded-md bg-gradient-to-r from-purple-500 to-purple-800 text-white flex flex-col items-center justify-center text-center shadow hover:scale-[1.02] transition-all"
+                                    onClick={() => {
+                                      setSelectedSlot(slot);
+                                      setShowModal(true);
+                                    }}
+                                  >
+                                    <FaClock className="mb-1 text-lg" />
+                                    <span>{slot}</span>
+                                  </button>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     </motion.div>
                   )}

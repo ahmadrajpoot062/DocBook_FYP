@@ -1,19 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import {
-  FaUserMd,
-  FaArrowLeft,
-  FaClock,
-  FaMoneyBillWave,
-  FaGraduationCap,
-  FaHospital,
-  FaSearch,
-  FaFilter,
-  FaStar,
-  FaRegStar,
-  FaCalendarAlt
+  FaUserMd, FaArrowLeft, FaClock, FaMoneyBillWave,
+  FaGraduationCap, FaHospital, FaSearch, FaFilter,
+  FaStar, FaRegStar, FaCalendarAlt
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { NavLink } from 'react-router-dom';
+import ApiService from '../../Services/ApiService';
 
 const Doctors = () => {
   const [doctors, setDoctors] = useState([]);
@@ -21,72 +14,99 @@ const Doctors = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [doctorsPerPage] = useState(6);
-  const [filters, setFilters] = useState({
-    speciality: '',
-    experience: '',
-    maxFee: ''
-  });
+  const [filters, setFilters] = useState({ speciality: '', experience: '', maxFee: '' });
   const [showFilters, setShowFilters] = useState(false);
   const [sortOption, setSortOption] = useState('relevance');
 
-  useEffect(() => {
-    setTimeout(() => {
-      const specialties = [
-        { name: 'Cardiology', color: '#3B82F6', icon: <FaHospital className="text-blue-500" /> },
-        { name: 'Neurology', color: '#6366F1', icon: <FaHospital className="text-indigo-500" /> },
-        { name: 'Pediatrics', color: '#10B981', icon: <FaHospital className="text-emerald-500" /> },
-        { name: 'Orthopedics', color: '#F59E0B', icon: <FaHospital className="text-amber-500" /> },
-        { name: 'Dermatology', color: '#EC4899', icon: <FaHospital className="text-pink-500" /> },
-        { name: 'Oncology', color: '#8B5CF6', icon: <FaHospital className="text-violet-500" /> },
-        { name: 'Gastroenterology', color: '#06B6D4', icon: <FaHospital className="text-cyan-500" /> }
-      ];
+  const specialties = [
+    { name: 'Cardiology', color: '#3B82F6', icon: <FaHospital className="text-blue-500" /> },
+    { name: 'Neurology', color: '#6366F1', icon: <FaHospital className="text-indigo-500" /> },
+    { name: 'Pediatrics', color: '#10B981', icon: <FaHospital className="text-emerald-500" /> },
+    { name: 'Orthopedics', color: '#F59E0B', icon: <FaHospital className="text-amber-500" /> },
+    { name: 'Dermatology', color: '#EC4899', icon: <FaHospital className="text-pink-500" /> },
+    { name: 'Oncology', color: '#8B5CF6', icon: <FaHospital className="text-violet-500" /> },
+    { name: 'Gastroenterology', color: '#06B6D4', icon: <FaHospital className="text-cyan-500" /> }
+  ];
 
-      setDoctors(Array.from({ length: 24 }, (_, i) => ({
-        id: i + 1,
-        name: `Dr. ${['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller'][i % 7]} ${['A.', 'B.', 'C.', 'D.', 'E.', 'F.', 'G.'][i % 7]}`,
-        speciality: specialties[i % specialties.length],
-        qualification: ['MD, Cardiology', 'MBBS, FCPS (Medicine)', 'MBBS, MRCP (UK)', 'MBBS, FRCS (Surgery)', 'MBBS, PhD (Neuroscience)'][i % 5],
-        timings: ["9:00 AM - 1:00 PM", "2:00 PM - 6:00 PM", "6:00 PM - 10:00 PM"][i % 3],
-        charges: `${1500 + (i % 15) * 500}`,
-        experience: `${i % 15 + 1}`,
-        consultationTime: `${15 + (i % 4) * 5} mins`,
-        rating: (4 + Math.random()).toFixed(1),
-        availableToday: i % 3 === 0,
-        nextAvailable: i % 3 === 0 ? 'Today' : `In ${i % 3 + 1} days`,
-        languages: ['English', 'Urdu'].concat(
-          i % 2 === 0 ? ['Punjabi'] : [],
-          i % 3 === 0 ? ['Sindhi'] : []
-        )
-      })));
-      setLoading(false);
-    }, 1200);
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const data = await ApiService.getDoctors();
+
+        const mappedDoctors = await Promise.all(
+          data.map(async (d) => {
+            let userDetails = { firstName: "Unknown", lastName: "" };
+            try {
+              userDetails = await ApiService.getUserDetails(d.userId);
+            } catch (error) {
+              console.error(`Error fetching user details for doctor ID ${d.id}:`, error);
+            }
+
+            const fullName = `${userDetails.userName}`.trim();
+            let parsedAvailability = [];
+            try {
+              parsedAvailability = d.availability
+                ? d.availability.split(',').map((slot) => slot.trim())
+                : [];
+            } catch (error) {
+              console.error(`Error parsing availability for doctor ID ${d.id}:`, error);
+            }
+            const defaultSlot = parsedAvailability.length > 0 ? parsedAvailability.join(', ') : "Not Available";
+            const rating = d.reviews?.length > 0
+              ? (d.reviews.reduce((sum, r) => sum + r.rating, 0) / d.reviews.length).toFixed(1)
+              : "4.0";
+
+            const specialty = specialties.find(s => s.name === d.specialization) || { name: "General", color: "#3B82F6" };
+
+            return {
+              id: d.id,
+              name: fullName ? `Dr. ${fullName}` : "Dr. Unknown",
+              speciality: specialty.name,
+              specialityColor: specialty.color,
+              qualification: d.qualification || "Not Specified",
+              timings: defaultSlot,
+              charges: d.consultationFee || "N/A",
+              experience: d.experienceYears || "0",
+              consultationTime: "15 mins",
+              rating: rating,
+              availableToday: parsedAvailability.length > 0,
+              nextAvailable: parsedAvailability.length > 0 ? "Today" : "Not Available",
+              languages: d.languages || ["English"]
+            };
+          })
+        );
+
+        setDoctors(mappedDoctors);
+      } catch (err) {
+        console.error("Error fetching doctors:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDoctors();
   }, []);
 
-  // Filter doctors
+  // Filtering
   const filteredDoctors = doctors.filter(doctor => {
-    const matchesSearch = doctor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      doctor.speciality.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = doctor.name.toLowerCase().includes(searchTerm.toLowerCase())
+      || doctor.speciality.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesSpeciality = filters.speciality ? doctor.speciality.name === filters.speciality : true;
+    const matchesSpeciality = filters.speciality ? doctor.speciality === filters.speciality : true;
     const matchesExperience = filters.experience ? parseInt(doctor.experience) >= parseInt(filters.experience) : true;
     const matchesMaxFee = filters.maxFee ? parseInt(doctor.charges) <= parseInt(filters.maxFee) : true;
 
     return matchesSearch && matchesSpeciality && matchesExperience && matchesMaxFee;
   });
 
-  // Sort doctors
+  // Sorting
   const sortedDoctors = [...filteredDoctors].sort((a, b) => {
     switch (sortOption) {
-      case 'highest-rated':
-        return parseFloat(b.rating) - parseFloat(a.rating);
-      case 'experience':
-        return parseInt(b.experience) - parseInt(a.experience);
-      case 'fee-low-high':
-        return parseInt(a.charges) - parseInt(b.charges);
-      case 'fee-high-low':
-        return parseInt(b.charges) - parseInt(a.charges);
-      default: // relevance
-        return 0;
+      case 'highest-rated': return parseFloat(b.rating) - parseFloat(a.rating);
+      case 'experience': return parseInt(b.experience) - parseInt(a.experience);
+      case 'fee-low-high': return parseInt(a.charges) - parseInt(b.charges);
+      case 'fee-high-low': return parseInt(b.charges) - parseInt(a.charges);
+      default: return 0;
     }
   });
 
@@ -95,10 +115,9 @@ const Doctors = () => {
   const indexOfFirstDoctor = indexOfLastDoctor - doctorsPerPage;
   const currentDoctors = sortedDoctors.slice(indexOfFirstDoctor, indexOfLastDoctor);
   const totalPages = Math.ceil(sortedDoctors.length / doctorsPerPage);
-
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  const specialities = [...new Set(doctors.map(doctor => doctor.speciality.name))];
+  const specialities = [...new Set(doctors.map(doctor => doctor.speciality))];
 
   const renderRating = (rating) => {
     const stars = [];
@@ -123,22 +142,18 @@ const Doctors = () => {
     );
   };
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
+      transition: { staggerChildren: 0.1 },
     },
   };
 
   const cardVariants = {
     hidden: { y: 30, opacity: 0 },
     visible: {
-      y: 0,
-      opacity: 1,
+      y: 0, opacity: 1,
       transition: { type: "spring", stiffness: 120, damping: 10 },
     },
     hover: {
@@ -424,7 +439,7 @@ const Doctors = () => {
                   {/* Specialty Indicator */}
                   <div
                     className="h-1.5 w-full"
-                    style={{ backgroundColor: doctor.speciality.color }}
+                    style={{ backgroundColor: doctor.specialityColor }}
                   ></div>
 
                   <div className="p-3 sm:p-4 flex flex-col flex-grow">
@@ -441,11 +456,11 @@ const Doctors = () => {
                             <span
                               className="inline-block text-xs px-1.5 py-0.5 rounded-full font-medium break-words"
                               style={{
-                                backgroundColor: `${doctor.speciality.color}20`,
-                                color: doctor.speciality.color
+                                backgroundColor: `${doctor.specialityColor}20`,
+                                color: doctor.specialityColor
                               }}
                             >
-                              {doctor.speciality.name}
+                              {doctor.speciality}
                             </span>
                           </div>
                         </div>
@@ -455,9 +470,7 @@ const Doctors = () => {
 
                     <div className="space-y-2 text-xs sm:text-sm mb-3 sm:mb-4 flex-grow">
                       <div className="flex items-start">
-                        <div className="text-blue-500 mr-2 mt-0.5 flex-shrink-0">
-                          {doctor.speciality.icon}
-                        </div>
+                        <FaGraduationCap className="text-blue-500 mr-2 mt-0.5 flex-shrink-0 text-xs sm:text-sm" />
                         <span className="text-gray-700 break-words">{doctor.qualification}</span>
                       </div>
 
@@ -479,41 +492,25 @@ const Doctors = () => {
                       </div>
 
                       <div className="flex items-start">
-                        <svg className="w-3.5 h-3.5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
-                        </svg>
-                        <span className="text-gray-700 break-words">Speaks: {doctor.languages.join(', ')}</span>
+                        <FaCalendarAlt className="text-blue-500 mr-2 mt-0.5 flex-shrink-0 text-xs sm:text-sm" />
+                        <span className="text-gray-700 font-medium break-words">
+                          {doctor.availableToday ? 'Available Today' : doctor.nextAvailable}
+                        </span>
                       </div>
-
-                      {doctor.availableToday && (
-                        <div className="flex items-start">
-                          <FaCalendarAlt className="text-blue-500 mr-2 mt-0.5 flex-shrink-0 text-xs sm:text-sm" />
-                          <span className="text-gray-700 font-medium break-words">Available Today</span>
-                        </div>
-                      )}
                     </div>
 
                     {/* Buttons fixed at bottom */}
                     <div className="flex gap-2 sm:gap-3 mt-auto pt-1">
-                      {/* <motion.a 
-                        href={`/Patient/Doctor_Profile?id=${doctor.id}`} 
-                        className="flex-1 text-center py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium border border-blue-500 text-blue-600"
-                        whileHover={{ 
-                          backgroundColor: "rgba(59, 130, 246, 0.1)",
-                          transition: { duration: 0.2 }
-                        }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        View Profile
-                      </motion.a> */}
                       <NavLink
                         to={`Doctor_Profile`}
+                        state={{ doctor }}
                         className="flex-1 text-center py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium border border-blue-500 text-blue-600"
                       >
                         View Profile
                       </NavLink>
                       <NavLink
                         to={`Book_Appointment`}
+                        state= {{doctor}}
                         className="flex-1 text-center py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md"
                       >
                         <motion.span

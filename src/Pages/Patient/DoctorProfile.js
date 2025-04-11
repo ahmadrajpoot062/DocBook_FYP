@@ -1,13 +1,12 @@
 import { React, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { colors } from '../../Constants/Colors';
 import { motion } from 'framer-motion';
 import {
-  FaClock,
   FaUser,
   FaStethoscope,
   FaHospital,
   FaCalendarAlt,
-  FaMoneyBillWave,
   FaMapMarkerAlt,
   FaCheckCircle,
   FaArrowLeft,
@@ -41,23 +40,6 @@ const cardVariants = {
   },
 };
 
-const doctorData = {
-  name: "Dr. John Doe",
-  specialty: "Cardiologist",
-  experience: "15 Years",
-  waitTime: "30 mins",
-  avgTimeToPatient: "20 mins",
-  diagnosisSatisfaction: "95%",
-  qualification: "MBBS, FCPS (Cardiology)",
-  timings: "Monday - Friday: 10:00 AM - 4:00 PM",
-  charges: "2000 PKR",
-  address: "Near Old Anarkali, Mayo Hospital, Lahore",
-  image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
-  rating: 4.8,
-  languages: ["English", "Urdu", "Punjabi"],
-  about: "Dr. John Doe is a board-certified cardiologist with extensive experience in treating heart conditions. He completed his fellowship at Johns Hopkins Hospital and has published numerous research papers in cardiology journals. Dr. Doe specializes in interventional cardiology and preventive heart care."
-};
-
 const renderRating = (rating) => {
   const stars = [];
   const fullStars = Math.floor(rating);
@@ -81,7 +63,36 @@ const renderRating = (rating) => {
   );
 };
 
+const specialties = [
+  { name: 'Cardiology', color: '#3B82F6' },
+  { name: 'Neurology', color: '#6366F1' },
+  { name: 'Pediatrics', color: '#10B981' },
+  { name: 'Orthopedics', color: '#F59E0B' },
+  { name: 'Dermatology', color: '#EC4899' },
+  { name: 'Oncology', color: '#8B5CF6' },
+  { name: 'Gastroenterology', color: '#06B6D4' }
+];
+
 const DoctorProfile = () => {
+  const location = useLocation();
+  const doctorData =  {
+    name: location.state?.doctor.name || "Dr. John Doe",
+    specialty: location.state?.doctor.speciality || "Cardiology",
+    experience: location.state?.doctor.experience + " Years" || "1 Years",
+    waitTime: "30 mins",
+    avgTimeToPatient: "20 mins",
+    diagnosisSatisfaction: "95%",
+    qualification: location.state?.doctor.qualification || "MBBS, MD (Cardiology)",
+    timings: "Monday to Friday "+location.state?.doctor.timings || "Monday to Friday, 9 AM - 5 PM",
+    charges: "PKR "+location.state?.doctor.charges || "PKR 2000",
+    address: "Near Old Anarkali, Mayo Hospital, Lahore",
+    image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80",
+    rating: 4.8,
+    languages: ["English", "Urdu", "Punjabi"],
+    about: "Dr. John Doe is a board-certified cardiologist with extensive experience in treating heart conditions. He completed his fellowship at Johns Hopkins Hospital and has published numerous research papers in cardiology journals. Dr. Doe specializes in interventional cardiology and preventive heart care."
+  };
+
+  const specialtyDetails = specialties.find(s => s.name === doctorData.specialty) || { name: "General", color: "#3B82F6" };
 
   // Scroll to top on component mount
   useEffect(() => {
@@ -167,7 +178,7 @@ const DoctorProfile = () => {
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-1">
                   {doctorData.name}
                 </h2>
-                <h3 className="text-sm sm:text-base md:text-xl text-blue-100 mb-2 sm:mb-3">
+                <h3 className="text-sm sm:text-base md:text-xl" style={{ color: specialtyDetails.color }}>
                   {doctorData.specialty}
                 </h3>
 
