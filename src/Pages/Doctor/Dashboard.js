@@ -4,6 +4,7 @@ import { FiClock, FiUserPlus, FiFileText, FiBarChart2, FiUser, FiFilePlus } from
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from 'react-router-dom';
 import { getSidebarNavLinks } from '../../Constants/sidebarNavConfig';
+import ApiService from '../../Services/ApiService'; // Import ApiService
 
 const StatCard = ({ icon: Icon, title, value, onClick, color }) => {
   return (
@@ -55,6 +56,7 @@ const Dashboard = () => {
       prescriptionsThisMonth: 0,
       adherenceRate: 0,
     },
+    todayAppointmentsList: [], // Store today's appointments
     loading: true,
   });
 
@@ -63,23 +65,33 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        setTimeout(() => {
-          const mockApiResponse = {
-            doctor: { name: "Rehan", specialty: "Cardiologist" },
-            stats: {
-              todayAppointments: 5,
-              newPatients: 2,
-              prescriptionsThisMonth: 23,
-              adherenceRate: 89,
-            },
-          };
-          setDashboardData({ ...mockApiResponse, loading: false });
-        }, 1000);
+        setDashboardData((prev) => ({ ...prev, loading: true }));
+        const doctorEmail = localStorage.getItem('userEmail'); // Get the logged-in doctor's email
+        const today = new Date().getFullYear().toString().padStart(2, '0') + '-' +
+        (new Date().getMonth() + 1).toString().padStart(2, '0') + '-' +
+        new Date().getDate().toString();
+
+        // Fetch today's appointments using the API
+        const todayAppointments = await ApiService.getAppointmentsByDate(doctorEmail, today);
+
+        const mockApiResponse = {
+          doctor: { name: "Rehan", specialty: "Cardiologist" },
+          stats: {
+            todayAppointments: todayAppointments.length,
+            newPatients: 2,
+            prescriptionsThisMonth: 23,
+            adherenceRate: 89,
+          },
+          todayAppointmentsList: todayAppointments, // Store today's appointments
+        };
+
+        setDashboardData({ ...mockApiResponse, loading: false });
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
         setDashboardData((prev) => ({ ...prev, loading: false }));
       }
     };
+
     fetchDashboardData();
   }, []);
 
@@ -120,8 +132,12 @@ const Dashboard = () => {
         <StatCard
           icon={FiClock}
           title="Appointments"
-          value={getStatValue('todayAppointments')}
-          onClick={() => navigate(sidebarNavLinks.find(link => link.text === "Appointments").to)}
+          value={dashboardData.stats.todayAppointments}
+          onClick={() =>
+            navigate('/doctor/my_appointments', {
+              state: { appointments: dashboardData.todayAppointmentsList }, // Pass today's appointments
+            })
+          }
           color={colors.primary}
         />
         <StatCard

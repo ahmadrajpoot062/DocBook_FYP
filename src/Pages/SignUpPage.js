@@ -86,33 +86,50 @@ const SignUpPage = () => {
     return (
         <div className='SignUpPage'>
             <div className="min-h-screen flex items-center justify-center p-4 bg-gray-50">
-                {/* Main Container - Simplified animation */}
+                {/* Main Container */}
                 <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
                     className="flex flex-col md:flex-row w-full max-w-6xl rounded-xl overflow-hidden shadow-lg my-8"
                 >
-                    {/* Welcome Section (Left) - Simplified animation */}
+                    {/* Welcome Section */}
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.3, delay: 0.1 }}
+                        initial={{ opacity: 0, x: -50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
                         className="md:w-2/5 p-8 md:p-10 flex flex-col justify-center items-center text-center"
                         style={{ backgroundColor: colors.primary }}
                     >
-                        <div className="mb-6">
+                        <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: 0.4 }}
+                            className="mb-6"
+                        >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: colors.white }}>
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
                             </svg>
-                        </div>
+                        </motion.div>
 
-                        <h1 className="text-3xl font-bold mb-4" style={{ color: colors.white }}>
+                        <motion.h1
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.5 }}
+                            className="text-3xl font-bold mb-4"
+                            style={{ color: colors.white }}
+                        >
                             Join Us Today!
-                        </h1>
-                        <p className="mb-6 text-lg" style={{ color: 'rgba(255,255,255,0.8)' }}>
+                        </motion.h1>
+                        <motion.p
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.6 }}
+                            className="mb-6 text-lg"
+                            style={{ color: 'rgba(255,255,255,0.8)' }}
+                        >
                             Become part of our growing community
-                        </p>
+                        </motion.p>
 
                         <motion.button
                             whileHover={{ scale: 1.03 }}
@@ -128,30 +145,39 @@ const SignUpPage = () => {
                         </motion.button>
                     </motion.div>
 
-                    {/* Sign Up Form Section (Right) - Simplified animation */}
+                    {/* Sign Up Form Section */}
                     <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.3, delay: 0.2 }}
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.6, delay: 0.3 }}
                         className="md:w-3/5 p-8 md:p-10 bg-white"
                     >
-                        <div className="mb-8 text-center">
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 }}
+                            className="mb-8 text-center"
+                        >
                             <h2 className="text-4xl font-bold mb-2 flex items-center justify-center gap-2" style={{ color: colors.primary }}>
                                 <FaUserAlt /> Create Account
                             </h2>
 
-                            {/* User Type Display (Dynamic text) */}
-                            <div className="inline-flex items-center space-x-4 mb-4">
+                            <div className="inline-flex items-center space-x-4 mb-3">
                                 <span className="text-gray-600">Signing up as:</span>
                                 <span className="px-4 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 capitalize">
                                     {formData.role || 'Select Role'}
                                 </span>
                             </div>
-                        </div>
+                        </motion.div>
 
                         <form onSubmit={handleSubmit}>
                             {/* Username Field */}
-                            <div className="relative mb-6">
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.5 }}
+                                className="relative mb-5"
+                            >
                                 <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                 <input
                                     type="text"
@@ -161,6 +187,7 @@ const SignUpPage = () => {
                                     className="w-full pl-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:border-blue-500 transition-all"
                                     onFocus={() => handleFocus('username')}
                                     onBlur={() => handleBlur('username')}
+                                    required
                                 />
                                 <label
                                     htmlFor="username"
@@ -174,10 +201,10 @@ const SignUpPage = () => {
                                 >
                                     Username
                                 </label>
-                            </div>
+                            </motion.div>
 
                             {/* Email Field */}
-                            <div className="relative mb-6">
+                            <div className="relative mb-5">
                                 <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                 <input
                                     type="email"
@@ -204,7 +231,7 @@ const SignUpPage = () => {
 
 
                             {/* Password Field */}
-                            <div className="relative mb-6">
+                            <div className="relative mb-5">
                                 <div className="relative">
                                 <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                     <input
@@ -239,7 +266,7 @@ const SignUpPage = () => {
                             </div>
 
                             {/* Confirm Password Field */}
-                            <div className="relative mb-8">
+                            <div className="relative mb-5">
                                 <div className="relative">
                                 <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                     <input
@@ -276,7 +303,7 @@ const SignUpPage = () => {
 
 
                             {/* Gender Field */}
-                            <div className="relative mb-8">
+                            <div className="relative mb-6">
                                 <FaVenusMars className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                 <select
                                     id="gender"

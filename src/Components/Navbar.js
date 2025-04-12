@@ -1,14 +1,23 @@
 import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import { IoMdLogIn } from "react-icons/io";
+import { IoMdLogIn, IoMdLogOut } from "react-icons/io";
 import { FaUserMd } from "react-icons/fa"; // Import the doctor icon
 import { colors } from "../Constants/Colors";
 import { navLinks } from "../Constants/navbarNavConfig"; // Import the navigation config
+import { motion } from "framer-motion"; // For animations
+import LogoutModal from "./LogoutModal";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const userType = localStorage.getItem("userRole")?.toLowerCase(); // Get user type from local storage
   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = "/";
+  }
 
   return (
     <div className="Navbar">
@@ -38,7 +47,29 @@ const Navbar = () => {
             </div>
 
             {/* Login Button - Always Visible */}
-            <div className="flex items-center gap-4">
+            {userType ? (
+              <div className="flex items-center gap-4">
+              <button
+                onClick={() => setIsLogoutModalOpen(true)}
+                style={{ backgroundColor: colors.red, color: colors.white }}
+                className="px-4 py-2 rounded-lg hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 flex items-center gap-2 transition-all"
+                aria-label="Login"
+              >
+                <IoMdLogOut size={18} />
+                Logout
+              </button>
+
+              {/* Mobile Menu Toggle Button */}
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                style={{ color: colors.primary }}
+                className="lg:hidden hover:text-purple-800 transition-all"
+                aria-label="Toggle Menu"
+              >
+                {isOpen ? <X size={28} /> : <Menu size={28} />}
+              </button>
+            </div>
+            ) : (<div className="flex items-center gap-4">
               <button
                 onClick={() => navigate("/login")}
                 style={{ backgroundColor: colors.primary, color: colors.white }}
@@ -58,7 +89,8 @@ const Navbar = () => {
               >
                 {isOpen ? <X size={28} /> : <Menu size={28} />}
               </button>
-            </div>
+            </div>)}
+
           </div>
         </div>
 
@@ -73,6 +105,12 @@ const Navbar = () => {
           </div>
         )}
       </nav>
+      {/* Logout Modal */}
+      <LogoutModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={handleLogout}
+      />
     </div>
   );
 };

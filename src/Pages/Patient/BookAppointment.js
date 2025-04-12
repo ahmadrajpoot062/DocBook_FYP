@@ -9,7 +9,8 @@ import {
   FaRegStar,
   FaTimes,
   FaChevronLeft,
-  FaChevronRight
+  FaChevronRight,
+  FaList
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -84,11 +85,11 @@ const BookAppointment = () => {
     specialty: location.state?.doctor.speciality || "Cardiologist",
     experience: location.state?.doctor.experience || "15 Years",
     rating: 4.8,
-    timings: "Monday - Friday: "+location.state?.doctor.timings || "Monday - Friday: 10:00 AM - 4:00 PM",
+    timings: "Monday - Friday: " + location.state?.doctor.timings || "Monday - Friday: 10:00 AM - 4:00 PM",
     charges: location.state?.doctor.charges + " PKR" || "2000 PKR",
     image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80"
   };
-  
+
   useEffect(() => {
     const fetchPatientId = async () => {
       try {
@@ -122,9 +123,9 @@ const BookAppointment = () => {
   const showAvailableSlots = async (event) => {
     event.preventDefault();
     if (!appointmentDate || !doctorData.timings) return;
-  
+
     const timeRange = doctorData.timings.replace("Monday - Friday: ", "").replace(" ", "").replace("–", "-");
-  
+
     try {
       const data = await ApiService.getAvailableTimeSlots(timeRange, 15);
       setAvailableSlots(data);
@@ -132,7 +133,7 @@ const BookAppointment = () => {
       console.error("Error fetching available slots:", error);
     }
   };
-  
+
 
   const confirmAppointment = async () => {
     if (!appointmentDate || !selectedSlot || !patientId) return;
@@ -172,27 +173,27 @@ const BookAppointment = () => {
   const generateDays = () => {
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
-    
+
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
-    
+
     const daysInMonth = lastDay.getDate();
     const startingDay = firstDay.getDay();
-    
+
     const days = [];
-    
+
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < startingDay; i++) {
       days.push(<div key={`empty-${i}`} className="h-8 sm:h-10"></div>);
     }
-    
+
     // Add days of the month
     for (let i = 1; i <= daysInMonth; i++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
       const isSelected = appointmentDate === dateStr;
       const isToday = dateStr === new Date().toISOString().split('T')[0];
       const isPast = new Date(dateStr) < new Date(new Date().toISOString().split('T')[0]);
-      
+
       days.push(
         <button
           key={i}
@@ -208,7 +209,7 @@ const BookAppointment = () => {
         </button>
       );
     }
-    
+
     return days;
   };
 
@@ -225,7 +226,7 @@ const BookAppointment = () => {
 
   return (
     <motion.div
-      className="min-h-screen bg-gradient-to-br from-blue-50 to-white py-4 sm:py-6 px-3 sm:px-4 lg:px-8"
+      className=" py-4 sm:py-6 px-3 sm:px-4 lg:px-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
@@ -259,16 +260,53 @@ const BookAppointment = () => {
             transition={{ duration: 0.8, delay: 0.6 }}
           />
           <motion.p
-            className="text-sm sm:text-base text-gray-600 mt-4 sm:mt-6 max-w-2xl mx-auto px-2 sm:px-0"
+            className="text-sm sm:text-base text-gray-600 mt-2 sm:mt-6 max-w-2xl mx-auto px-2 sm:px-0"
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.9, duration: 0.5 }}
           >
             Select your preferred date and time for consultation
           </motion.p>
+
+
         </motion.div>
 
+        {/* Doctor Info */}
+        <motion.div className="xl:w-1/3 mx-auto flex-col items-center" variants={cardVariants}>
+          <div className="bg-blue-50 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6 shadow-lg flex flex-col items-center">
+            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-white shadow-sm">
+                <img
+                  src={doctorData.image}
+                  alt={doctorData.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.src = "https://via.placeholder.com/150?text=Doctor";
+                  }}
+                />
+              </div>
+              <div className="text-center">
+                <h3 className="font-bold text-sm sm:text-base text-gray-900">{doctorData.name}</h3>
+                <p className="text-xs sm:text-sm text-blue-600">{doctorData.specialty}</p>
+                <div className="flex justify-center">
+                  {renderRating(doctorData.rating)}
+                </div>
+              </div>
+            </div>
+            <div className="space-y-2 sm:space-y-3 text-center">
+              <div className="flex items-center justify-center text-xs sm:text-sm">
+                <FaClock className="text-blue-500 mr-1 sm:mr-2" />
+                <span>{doctorData.timings}</span>
+              </div>
+              <div className="flex items-center justify-center text-xs sm:text-sm">
+                <FaCalendarAlt className="text-blue-500 mr-1 sm:mr-2" />
+                <span>{doctorData.charges} consultation fee</span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
         {/* Main Card */}
+
         <motion.div
           className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 mx-2 sm:mx-0"
           variants={containerVariants}
@@ -276,83 +314,50 @@ const BookAppointment = () => {
           animate="visible"
         >
           <div className="p-4 sm:p-6 md:p-8">
-            <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
-              {/* Doctor Info (unchanged) */}
-              <motion.div className="lg:w-1/3" variants={cardVariants}>
-                <div className="bg-blue-50 rounded-xl p-4 sm:p-6 mb-4 sm:mb-6">
-                  <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-white shadow-sm">
-                      <img
-                        src={doctorData.image}
-                        alt={doctorData.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.target.src = "https://via.placeholder.com/150?text=Doctor";
-                        }}
-                      />
-                    </div>
-                    <div className="text-center sm:text-left">
-                      <h3 className="font-bold text-sm sm:text-base text-gray-900">{doctorData.name}</h3>
-                      <p className="text-xs sm:text-sm text-blue-600">{doctorData.specialty}</p>
-                      <div className="flex justify-center sm:justify-start">
-                        {renderRating(doctorData.rating)}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-2 sm:space-y-3">
-                    <div className="flex items-center text-xs sm:text-sm">
-                      <FaClock className="text-blue-500 mr-1 sm:mr-2" />
-                      <span>{doctorData.timings}</span>
-                    </div>
-                    <div className="flex items-center text-xs sm:text-sm">
-                      <FaCalendarAlt className="text-blue-500 mr-1 sm:mr-2" />
-                      <span>{doctorData.charges} consultation fee</span>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+
+            <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 items-center justify-center">
+
 
               {/* Booking Form - Enhanced Section */}
               <motion.div className="lg:w-2/3" variants={cardVariants}>
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center justify-center gap-2">
                   <FaCalendarAlt className="text-blue-500 mr-1 sm:mr-2" />
                   Appointment Details
                 </h3>
-                
+
                 {/* Enhanced Date Selection */}
                 <form onSubmit={showAvailableSlots} className="mb-4 sm:mb-6">
                   <div className="mb-4 sm:mb-6">
-                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-700 mb-2 sm:mb-3 text-center">
                       Select Appointment Date
                     </label>
                     <div className="relative">
-                      <div 
+                      <div
                         className={`w-full p-3 sm:p-4 border ${appointmentDate ? 'border-blue-500' : 'border-gray-300'} rounded-xl text-sm sm:text-base focus:ring-2 focus:ring-blue-500 cursor-pointer flex items-center justify-between bg-white`}
                         onClick={handleDateInputClick}
                       >
                         <span className={`${!appointmentDate ? 'text-gray-400' : 'text-gray-800'}`}>
-                          {appointmentDate ? 
-                            new Date(appointmentDate).toLocaleDateString('en-US', { 
-                              weekday: 'long', 
-                              year: 'numeric', 
-                              month: 'long', 
-                              day: 'numeric' 
-                            }) : 
+                          {appointmentDate ?
+                            new Date(appointmentDate).toLocaleDateString('en-US', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            }) :
                             'Select a date'}
                         </span>
                         <FaCalendarAlt className="text-blue-500" />
                       </div>
                     </div>
                   </div>
-                  
+
                   <motion.button
                     type="submit"
                     disabled={!appointmentDate}
-                    className={`w-full px-4 py-3 sm:px-5 sm:py-3.5 rounded-xl text-sm sm:text-base font-medium text-white shadow-md flex items-center justify-center gap-2 transition-all duration-300 ${
-                      !appointmentDate 
-                        ? 'bg-gray-400 cursor-not-allowed' 
-                        : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 hover:shadow-lg'
-                    }`}
+                    className={`w-full px-4 py-3 sm:px-5 sm:py-3.5 rounded-xl text-sm sm:text-base font-medium text-white shadow-md flex items-center justify-center gap-2 transition-all duration-300 ${!appointmentDate
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 hover:shadow-lg'
+                      }`}
                     whileHover={appointmentDate ? { scale: 1.01 } : {}}
                     whileTap={appointmentDate ? { scale: 0.99 } : {}}
                   >
@@ -372,8 +377,11 @@ const BookAppointment = () => {
                       className="mb-4"
                     >
                       <div className="mt-6">
-                        <h4 className="text-lg font-semibold mb-3">Available Time Slots</h4>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-3">
+                        <h2 className="text-lg font-bold mb-6 flex items-center gap-2 justify-center text-center">
+                          <FaList className="text-blue-500" />
+                          Slots for <span className="text-green-600">{new Date(appointmentDate).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
                           {availableSlots.map((slot, index) => {
                             const isBooked = bookedSlots.includes(slot); // Check if the slot is in the booked slots array
                             //alert(isBooked);
@@ -470,7 +478,7 @@ const BookAppointment = () => {
             >
               <div className="bg-gradient-to-r from-blue-500 to-blue-600 p-4 text-white flex justify-between items-center">
                 <h2 className="text-lg font-bold">Select Appointment Date</h2>
-                <button 
+                <button
                   onClick={() => setShowCalendarModal(false)}
                   className="text-white hover:text-blue-100 transition-colors"
                 >
@@ -481,7 +489,7 @@ const BookAppointment = () => {
               <div className="p-4 sm:p-5">
                 {/* Month Navigation */}
                 <div className="flex items-center justify-between mb-4">
-                  <button 
+                  <button
                     onClick={() => navigateMonth(-1)}
                     className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                   >
@@ -490,7 +498,7 @@ const BookAppointment = () => {
                   <h3 className="text-lg font-semibold text-gray-800">
                     {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
                   </h3>
-                  <button 
+                  <button
                     onClick={() => navigateMonth(1)}
                     className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                   >
@@ -519,18 +527,17 @@ const BookAppointment = () => {
                     date.setDate(date.getDate() + days);
                     const dateStr = date.toISOString().split('T')[0];
                     const isToday = days === 0;
-                    
+
                     return (
                       <button
                         key={days}
                         onClick={() => setAppointmentDate(dateStr)}
-                        className={`text-xs px-3 py-1.5 rounded-full border ${
-                          appointmentDate === dateStr ? 
-                            'bg-blue-600 text-white border-blue-600' : 
-                            isToday ? 
-                              'border-blue-500 text-blue-600' : 
-                              'border-gray-300 text-gray-700 hover:bg-gray-50'
-                        }`}
+                        className={`text-xs px-3 py-1.5 rounded-full border ${appointmentDate === dateStr ?
+                          'bg-blue-600 text-white border-blue-600' :
+                          isToday ?
+                            'border-blue-500 text-blue-600' :
+                            'border-gray-300 text-gray-700 hover:bg-gray-50'
+                          }`}
                       >
                         {isToday ? 'Today' : days === 1 ? 'Tomorrow' : date.toLocaleDateString('en-US', { weekday: 'short' })}
                       </button>
@@ -551,11 +558,10 @@ const BookAppointment = () => {
                         setShowCalendarModal(false);
                       }
                     }}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors ${
-                      appointmentDate ? 
-                        'bg-blue-600 hover:bg-blue-700' : 
-                        'bg-gray-400 cursor-not-allowed'
-                    }`}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium text-white transition-colors ${appointmentDate ?
+                      'bg-blue-600 hover:bg-blue-700' :
+                      'bg-gray-400 cursor-not-allowed'
+                      }`}
                     disabled={!appointmentDate}
                   >
                     Select Date

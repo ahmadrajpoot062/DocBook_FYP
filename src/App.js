@@ -1,10 +1,10 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
 import Sidebar from "./Components/Sidebar";
 
-// Pages (Doctor)
+// Doctor Pages
 import CreatePrescription from "./Pages/Doctor/CreatePrescription";
 import Prescriptions from "./Pages/Doctor/Prescriptions";
 import MyProfile from "./Pages/Doctor/MyProfile";
@@ -12,7 +12,7 @@ import Patients from "./Pages/Doctor/Patients";
 import DoctorAppointments from "./Pages/Doctor/Appointments";
 import DoctorDashboard from "./Pages/Doctor/Dashboard";
 
-// Pages (Patient)
+// Patient Pages
 import PatientAppointments from "./Pages/Patient/Appointments";
 import PatientDashboard from "./Pages/Patient/Dashboard";
 import ViewPrescriptions from "./Pages/Patient/ViewPrescriptions";
@@ -31,69 +31,90 @@ import Home from "./Pages/Home";
 import LoginPage from "./Pages/LoginPage";
 import SignUpPage from "./Pages/SignUpPage";
 import Contact from "./Pages/Contact";
+import NotFound from "./Pages/NotFound";
+import AccessDenied from "./Pages/AccessDenied";
 
-function App() {
-  const userType = localStorage.getItem("userRole")?.toLowerCase(); // Get user type from local storage
-  const userEmail = localStorage.getItem('userEmail');
+const AppWrapper = () => {
+  const location = useLocation();
+  const userType = localStorage.getItem("userRole")?.toLowerCase();
 
+  const publicPaths = ["/", "/about", "/help", "/contact"];
+  const isPublicPage = publicPaths.includes(location.pathname);
 
   return (
-    <Router>
-      <div className="App min-h-screen flex flex-col">
-        {!userType ? (
-          // Show public pages with Navbar and Footer
-          <>
-            <Navbar />
-            <div className="content pt-16 flex-grow">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/help" element={<Help />} />
+    <div className="App min-h-screen flex flex-col">
+      {/* Show Navbar and Footer only on public pages */}
+      {isPublicPage && <Navbar />}
+
+      <div className="flex flex-1">
+        {/* Show Sidebar only on private pages */}
+        {userType && !isPublicPage && <Sidebar userType={userType} />}
+
+        <div className={`content flex-1  ${userType && !isPublicPage ? "lg:ml-64" : ""}`}>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/help" element={<Help />} />
+            <Route path="/contact" element={<Contact />} />
+            
+            <Route path={`/${userType}Dashboard`} element={userType === "doctor" ? <DoctorDashboard /> : userType === "patient" ? <PatientDashboard /> : <AccessDenied />} />
+            
+            {!userType && (
+              <>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signup" element={<SignUpPage />} />
-                <Route path="/contact" element={<Contact />} />
-              </Routes>
-            </div>
-            <Footer />
-          </>
-        ) : (
-          // Show dashboard routes after login based on userType
-          <div className="App flex flex-1">
-            <Sidebar userType={userType} />
-            <div className="content flex-1 p-4 lg:ml-64">
-              <Routes>
-                {userType === "doctor" && (
-                  <>
-                    <Route path="/" element={<DoctorDashboard userEmail={userEmail}/>} />
-                    <Route path="doctor/create_prescription" element={<CreatePrescription userEmail={userEmail}/>} />
-                    <Route path="doctor/prescriptions" element={<Prescriptions userEmail={userEmail}/>} />
-                    <Route path="doctor/patients" element={<Patients userEmail={userEmail}/>} />
-                    <Route path="doctor/my_profile" element={<MyProfile userEmail={userEmail}/>} />
-                    <Route path="doctor/my_appointments" element={<DoctorAppointments userEmail={userEmail}/>} />
-                  </>
-                )}
+              </>
+            )}
 
-                {userType === "patient" && (
-                  <>
-                    <Route path="/" element={<PatientDashboard userEmail={userEmail}/>} />
-                    <Route path="patient/scan_prescription" element={<ScanPrescription userEmail={userEmail}/>} />
-                    <Route path="patient/view_prescriptions" element={<ViewPrescriptions userEmail={userEmail}/>} />
-                    <Route path="patient/doctors" element={<Doctors userEmail={userEmail}/>} />
-                    <Route path="patient/doctors/Doctor_Profile" element={<DoctorProfile userEmail={userEmail}/>} />
-                    <Route path="patient/doctors/Book_Appointment" element={<BookAppointment userEmail={userEmail}/>} />
-                    <Route path="patient/doctors/Book_Appointment/Request_submitted" element={<RequestSubmitted userEmail={userEmail}/>} />
-                    <Route path="patient/doctors/Doctor_Profile/Book_Appointment" element={<BookAppointment userEmail={userEmail}/>} />
-                    <Route path="patient/doctors/Doctor_Profile/Book_Appointment/Request_submitted" element={<RequestSubmitted userEmail={userEmail}/>} />
-                    <Route path="patient/Reminders" element={<Reminders userEmail={userEmail}/>} />
-                    <Route path="patient/my_appointments" element={<PatientAppointments userEmail={userEmail}/>} />
-                    <Route path="patient/my_appointments/AppointmentCancelled" element={<AppointmentCancelled userEmail={userEmail}/>} />
-                  </>
-                )}
-              </Routes>
-            </div>
-          </div>
-        )}
+            {/* Doctor Routes */}
+            {userType === "doctor" && (
+              <>
+                <Route path="/doctorDashboard" element={<DoctorDashboard />} />
+                <Route path="/doctor/create_prescription" element={<CreatePrescription />} />
+                <Route path="/doctor/prescriptions" element={<Prescriptions />} />
+                <Route path="/doctor/patients" element={<Patients />} />
+                <Route path="/doctor/my_profile" element={<MyProfile />} />
+                <Route path="/doctor/my_appointments" element={<DoctorAppointments />} />
+              </>
+            )}
+
+            {/* Patient Routes */}
+            {userType === "patient" && (
+              <>
+                <Route path="/patientDashboard" element={<PatientDashboard />} />
+                <Route path="/patient/scan_prescription" element={<ScanPrescription />} />
+                <Route path="/patient/view_prescriptions" element={<ViewPrescriptions />} />
+                <Route path="/patient/doctors" element={<Doctors />} />
+                <Route path="/patient/doctors/Doctor_Profile" element={<DoctorProfile />} />
+                <Route path="/patient/doctors/Book_Appointment" element={<BookAppointment />} />
+                <Route path="/patient/doctors/Book_Appointment/Request_submitted" element={<RequestSubmitted />} />
+                <Route path="/patient/doctors/Doctor_Profile/Book_Appointment" element={<BookAppointment />} />
+                <Route path="/patient/doctors/Doctor_Profile/Book_Appointment/Request_submitted" element={<RequestSubmitted />} />
+                <Route path="/patient/Reminders" element={<Reminders />} />
+                <Route path="/patient/my_appointments" element={<PatientAppointments />} />
+                <Route path="/patient/my_appointments/AppointmentCancelled" element={<AppointmentCancelled />} />
+                <Route path="/signup" element={<AccessDenied />} />
+              </>
+            )}
+
+            
+          <Route path="*" element={<NotFound />} />
+
+          </Routes>
+        </div>
       </div>
+
+      {/* Footer only on public pages */}
+      {isPublicPage && <Footer />}
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <Router>
+      <AppWrapper />
     </Router>
   );
 }

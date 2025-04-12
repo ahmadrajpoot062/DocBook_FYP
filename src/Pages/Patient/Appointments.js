@@ -3,6 +3,7 @@ import { FaCalendarAlt, FaSearch, FaExclamationTriangle, FaTimes, FaCheck, FaUse
 import { colors } from '../../Constants/Colors';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import ApiService from '../../Services/ApiService';
 
 const PatientAppointments = () => {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ const PatientAppointments = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [itemsPerPage, setItemsPerPage] = useState(6);
+  const [statusFilter, setStatusFilter] = useState('Pending'); // Default filter is 'Pending'
 
   // Animation variants
   const containerVariants = {
@@ -52,31 +54,89 @@ const PatientAppointments = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const handleStatusFilterChange = (event) => {
+    const status = event.target.value;
+    setStatusFilter(status);
+    if (status === 'All') {
+      setFilteredAppointments(appointments);
+    } else {
+      const filtered = appointments.filter((appointment) => appointment.status === status);
+      setFilteredAppointments(filtered);
+    }
+    setCurrentPage(1);
+  };
+
   useEffect(() => {
-    // Simulated API call with patient-specific data
-    setTimeout(() => {
-      const mockAppointments = Array.from({ length: 15 }, (_, i) => ({
-        id: i + 1,
-        doctorName: `Dr. ${['Smith', 'Johnson', 'Williams', 'Brown', 'Jones'][i % 5]}`,
-        doctorSpecialty: ['Cardiology', 'Dermatology', 'Neurology', 'Pediatrics', 'Orthopedics'][i % 5],
-        date: `2024-03-${String(i % 15 + 1).padStart(2, '0')}`,
-        time: `${9 + (i % 8)}:${i % 2 === 0 ? '00' : '30'} ${i % 2 === 0 ? 'AM' : 'PM'}`,
-        status: ['Upcoming', 'Completed', 'Cancelled'][i % 3],
-        location: `Medical Center ${String.fromCharCode(65 + (i % 3))}`
-      }));
-      setAppointments(mockAppointments);
-      setFilteredAppointments(mockAppointments);
-      setLoading(false);
-    }, 1000);
+    const fetchAppointments = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch appointments by patient email
+        const appointmentsData = await ApiService.getAppointmentsByPatientEmail(localStorage.getItem('userEmail'));
+
+        // Fetch doctor details for each appointment
+        const appointmentsWithDoctorDetails = await Promise.all(
+          appointmentsData.map(async (appointment) => {
+            try {
+              const doctorData = await ApiService.getDoctorById(appointment.doctorId); // Fetch doctor details by ID
+              const userData = await ApiService.getUserDetails(doctorData.userId); // Fetch user details by ID
+              return {
+                ...appointment,
+                doctorName: userData.userName || "Unknown Doctor",
+                doctorSpecialty: doctorData.specialization || "General",
+              };
+            } catch (error) {
+              console.error(`Error fetching doctor details for doctor ID ${appointment.doctorId}:`, error);
+              return {
+                ...appointment,
+                doctorName: "Unknown Doctor",
+                doctorSpecialty: "General",
+              };
+            }
+          })
+        );
+
+        setAppointments(appointmentsWithDoctorDetails);
+        setFilteredAppointments(appointmentsWithDoctorDetails.filter((appointment) => appointment.status === 'Pending'));
+      } catch (error) {
+        console.error('Error fetching appointments:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAppointments();
   }, []);
+
+  const cancelAppointment = async (appointmentId) => {
+    try {
+      setLoading(true);
+      await ApiService.removeAppointment(appointmentId); // Call API to cancel the appointment
+      const updatedAppointments = appointments.map((appointment) =>
+        appointment.id === appointmentId
+          ? { ...appointment, status: 'Cancelled' }
+          : appointment
+      );
+      setAppointments(updatedAppointments);
+      setFilteredAppointments(updatedAppointments);
+      setSelectedAppointment(null);
+    } catch (error) {
+      console.error('Error cancelling appointment:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSearch = () => {
     if (searchDate) {
-      const filtered = appointments.filter(appointment => appointment.date === searchDate);
+      const filtered = appointments.filter(
+        (appointment) => appointment.date === searchDate && appointment.status !== 'Cancelled'
+      );
       setFilteredAppointments(filtered);
       setCurrentPage(1);
     } else {
-      setFilteredAppointments(appointments);
+      const filtered = appointments.filter((appointment) => appointment.status !== 'Cancelled');
+      setFilteredAppointments(filtered);
     }
   };
 
@@ -99,13 +159,13 @@ const PatientAppointments = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Upcoming': return colors.primary;
-      case 'Completed': return colors.green;
-      case 'Cancelled': return colors.red;
+      case 'Pending': return colors.pending;
+      case 'Completed': return colors.completed;
+      case 'Cancelled': return colors.cancelled;
+      case 'Approved': return colors.approved;
       default: return colors.black;
     }
   };
-
   return (
     <div
       className="min-h-screen p-3 sm:p-4 md:p-6"
@@ -183,6 +243,33 @@ const PatientAppointments = () => {
               <FaSearch />
             </motion.button>
           </motion.div>
+          <motion.div className="flex justify-center mb-4 ">
+            <div className="w-full sm:w-64">
+              <label className="block text-sm font-medium mb-1" style={{ color: colors.white }}>
+                Filter by Status
+              </label>
+              <select
+                value={statusFilter}
+                onChange={handleStatusFilterChange}
+                className="w-full px-4 py-2 rounded-lg text-sm font-medium border focus:outline-none shadow-sm transition duration-200"
+                style={{
+                  backgroundColor: colors.white,
+                  color: colors.black,
+                  borderColor: colors.primary,
+                  boxShadow: `0 0 0 1px ${colors.primary}33`,
+                }}
+                onFocus={(e) => e.target.style.boxShadow = `0 0 0 2px ${colors.primary}`}
+                onBlur={(e) => e.target.style.boxShadow = `0 0 0 1px ${colors.primary}33`}
+              >
+                <option value="All">All</option>
+                <option value="Pending">Pending</option>
+                <option value="Completed">Completed</option>
+                <option value="Approved">Approved</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
+            </div>
+          </motion.div>
+
         </div>
 
         {/* Content */}
@@ -262,7 +349,7 @@ const PatientAppointments = () => {
                           style={{ color: colors.black }}
                         >
                           <FaCalendarAlt className="mr-1 sm:mr-2 text-xs sm:text-sm" style={{ color: colors.primary }} />
-                          {appointment.date} at {appointment.time}
+                          {new Date(appointment.appointmentDate).toDateString()} at {appointment.bookedSlots.split('-')[0]}
                         </p>
                         <p className="text-xs sm:text-sm" style={{ color: colors.black }}>
                           Location: {appointment.location}
@@ -280,7 +367,7 @@ const PatientAppointments = () => {
                           {appointment.status}
                         </span>
 
-                        {appointment.status === 'Upcoming' && (
+                        {appointment.status === 'Pending' && (
                           <motion.button
                             className="px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium"
                             style={{
@@ -419,9 +506,9 @@ const PatientAppointments = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => {
-                      setSelectedAppointment(null);
+                      cancelAppointment(selectedAppointment.id);
                       navigate('AppointmentCancelled'); // Add this line
-                    }}
+                    }} // Call cancelAppointment here
                   >
                     <FaCheck className="mr-1 sm:mr-2" />
                     Yes, Cancel

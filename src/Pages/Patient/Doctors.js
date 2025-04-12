@@ -165,7 +165,7 @@ const Doctors = () => {
 
   return (
     <motion.div
-      className="min-h-screen bg-gradient-to-br from-blue-50 to-white py-6 px-4 sm:px-6 lg:px-8"
+      className="bg-gradient-to-br from-blue-50 to-white py-6 px-4 sm:px-6 lg:px-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}

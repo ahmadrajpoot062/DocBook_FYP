@@ -64,11 +64,11 @@ const LoginPage = () => {
 
             // Navigate based on the role
             if (role === 'Doctor') {
-                window.location.href = '/';
+                window.location.href = 'doctorDashboard';
             } else if (role === 'Patient') {
-                window.location.href = '/';
+                window.location.href = 'patientDashboard';
             } else if (role === 'admin') {
-                navigate('/admin-dashboard');
+                window.location.href = '/admin';
             } else {
                 alert('Unknown role. Please contact support.');
             }

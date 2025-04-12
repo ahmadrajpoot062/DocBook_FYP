@@ -146,7 +146,7 @@ function Dashboard({ name = "Patient" }) {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
       style={{ backgroundColor: colors.background || "#f8f9fa" }}
-      className="min-h-screen p-3 sm:p-4 md:p-6 transition-all duration-300 relative overflow-hidden"
+      className="p-3 sm:p-4 md:p-6 transition-all duration-300 relative overflow-hidden"
     >
       {/* Header section */}
       <div className="mb-6 sm:mb-8 mt-10 md:mt-7 lg:mt-0">
