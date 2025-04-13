@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { colors } from "../Constants/Colors";
 import { FaUserMd, FaSignOutAlt, FaTimes, FaBars } from "react-icons/fa";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { getSidebarNavLinks } from "../Constants/sidebarNavConfig";
 import LogoutModal from "./LogoutModal";
 

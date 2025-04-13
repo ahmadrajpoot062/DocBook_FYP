@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaUserInjured, FaUserMd, FaPills, FaClock, FaCalendarAlt, FaSignature } from "react-icons/fa";
+import { FaUserInjured, FaUserMd, FaPills, FaClock, FaCalendarAlt } from "react-icons/fa";
 import { colors } from "../../Constants/Colors";
 
 function CreatePrescription() {

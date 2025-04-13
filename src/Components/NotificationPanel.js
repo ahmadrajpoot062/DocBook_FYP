@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { FaBell, FaTimes, FaClock, FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
+import { FaTimes, FaClock, FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 
 const NotificationPanel = ({ 
   isOpen, 

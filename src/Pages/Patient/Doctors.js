@@ -631,7 +631,7 @@ const Doctors = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
         >
-          <NavLink to="/">
+          <NavLink to="/patientDashboard">
             <motion.div
               className="px-4 sm:px-5 py-2 rounded-lg text-xs sm:text-sm font-medium flex items-center border border-blue-500 text-blue-600"
               whileHover={{

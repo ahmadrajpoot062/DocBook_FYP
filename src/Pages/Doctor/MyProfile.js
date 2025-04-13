@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { colors } from "../../Constants/Colors";
-import { FaUserMd, FaHospital, FaPhone, FaInfoCircle, FaCheckCircle, FaEdit } from "react-icons/fa";
+import { FaUserMd, FaHospital, FaPhone, FaGraduationCap, FaClock, FaDollarSign, FaCalendarAlt, FaHome, FaPhoneAlt, FaCheckCircle, FaEdit, FaImage, FaInfoCircle, FaCamera, FaTimes } from "react-icons/fa";
 import { FiAlertCircle } from "react-icons/fi";
-import { FaRegSadTear, FaTimes } from "react-icons/fa";
+import { FaRegSadTear } from "react-icons/fa";
+import { BsInfoCircleFill } from "react-icons/bs";
 
 function MyProfile() {
   const [profile, setProfile] = useState({
@@ -12,18 +13,37 @@ function MyProfile() {
     hospital: "",
     contactNumber: "",
     bio: "",
+    dateOfBirth: "",
+    address: "",
+    profilePicture: null,
+    phoneNumber: "",
+    qualification: "",
+    experienceYears: "",
+    consultationFee: "",
+    availabilityStart: "",
+    availabilityEnd: "",
   });
   const [isProfileCreated, setIsProfileCreated] = useState(false);
   const [showModal, setShowModal] = useState(!isProfileCreated);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showNotFound, setShowNotFound] = useState(false);
+  const [isEditingImage, setIsEditingImage] = useState(false);
+  const [newProfilePicture, setNewProfilePicture] = useState(null);
 
   const handleChange = (e) => {
-    setProfile({ ...profile, [e.target.name]: e.target.value });
+    const { name, value, files } = e.target;
+    if (name === "profilePicture") {
+      setProfile((prev) => ({ ...prev, profilePicture: files[0] }));
+    } else {
+      setProfile({ ...profile, [name]: value });
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const availability = `${profile.availabilityStart} - ${profile.availabilityEnd}`;
+    const updatedData = { ...profile, availability };
+    console.log("Updated Profile Data:", updatedData);
     setShowSuccessModal(true);
   };
 
@@ -49,6 +69,23 @@ function MyProfile() {
 
   const handleEditProfile = () => {
     setIsProfileCreated(false);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewProfilePicture(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSaveImage = () => {
+    setProfile((prev) => ({ ...prev, profilePicture: newProfilePicture }));
+    setIsEditingImage(false);
+  };
+
+  const handleCancelImageEdit = () => {
+    setNewProfilePicture(null);
+    setIsEditingImage(false);
   };
 
   return (
@@ -84,6 +121,111 @@ function MyProfile() {
               : "Create your profile to get started"}
           </motion.p>
         </motion.div>
+
+        {/* Profile Picture Section */}
+        {isProfileCreated && (
+          <motion.div
+            className="flex justify-center items-center mb-8"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="relative">
+              {profile.profilePicture ? (
+                <img
+                  src={profile.profilePicture}
+                  alt="Profile"
+                  className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover border-4 border-blue-500 shadow-lg"
+                />
+              ) : (
+                <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full border-4 border-blue-500 shadow-lg flex items-center justify-center bg-blue-100">
+                  <FaUserMd className="text-blue-500 text-4xl" />
+                </div>
+              )}
+              <button
+                onClick={() => setIsEditingImage(true)}
+                className="absolute bottom-2 right-2 bg-blue-600 text-white p-2 rounded-full shadow-md hover:bg-blue-700 transition-all"
+              >
+                <FaCamera />
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Image Upload Modal */}
+        <AnimatePresence>
+          {isEditingImage && (
+            <motion.div
+              className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <motion.div
+                className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              >
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+                    <FaImage className="text-blue-500" /> Upload Picture
+                  </h2>
+                  <button
+                    onClick={handleCancelImageEdit}
+                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    <FaTimes className="text-lg" />
+                  </button>
+                </div>
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-600 mb-2">
+                    Choose an image
+                  </label>
+                  <div className="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-blue-500 transition-all">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                      id="file-upload"
+                    />
+                    <label
+                      htmlFor="file-upload"
+                      className="cursor-pointer text-blue-600 hover:text-blue-800 transition-colors"
+                    >
+                      Click to browse or drag & drop
+                    </label>
+                  </div>
+                </div>
+                {newProfilePicture && (
+                  <div className="mb-6">
+                    <img
+                      src={newProfilePicture}
+                      alt="Preview"
+                      className="w-full h-30 object-cover rounded-lg shadow-md"
+                    />
+                  </div>
+                )}
+                <div className="flex justify-end gap-4">
+                  <button
+                    onClick={handleCancelImageEdit}
+                    className="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveImage}
+                    className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all"
+                  >
+                    Save
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Conditional Rendering */}
         {showNotFound ? (
@@ -185,6 +327,106 @@ function MyProfile() {
                     </p>
                   </div>
                 </div>
+
+                <div className="flex items-start">
+                  <div className="bg-blue-100 p-3 rounded-lg mr-4">
+                    <FaInfoCircle className="text-blue-600 text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Date of Birth
+                    </h3>
+                    <p className="text-gray-700 whitespace-pre-line">
+                      {profile.dateOfBirth || "Not provided"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start">
+                  <div className="bg-blue-100 p-3 rounded-lg mr-4">
+                    <FaInfoCircle className="text-blue-600 text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Address
+                    </h3>
+                    <p className="text-gray-700 whitespace-pre-line">
+                      {profile.address || "Not provided"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start">
+                  <div className="bg-blue-100 p-3 rounded-lg mr-4">
+                    <FaInfoCircle className="text-blue-600 text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Phone Number
+                    </h3>
+                    <p className="text-gray-700 whitespace-pre-line">
+                      {profile.phoneNumber || "Not provided"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start">
+                  <div className="bg-blue-100 p-3 rounded-lg mr-4">
+                    <FaInfoCircle className="text-blue-600 text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Qualification
+                    </h3>
+                    <p className="text-gray-700 whitespace-pre-line">
+                      {profile.qualification || "Not provided"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start">
+                  <div className="bg-blue-100 p-3 rounded-lg mr-4">
+                    <FaInfoCircle className="text-blue-600 text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Experience Years
+                    </h3>
+                    <p className="text-gray-700 whitespace-pre-line">
+                      {profile.experienceYears || "Not provided"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start">
+                  <div className="bg-blue-100 p-3 rounded-lg mr-4">
+                    <FaInfoCircle className="text-blue-600 text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Consultation Fee
+                    </h3>
+                    <p className="text-gray-700 whitespace-pre-line">
+                      {profile.consultationFee || "Not provided"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start">
+                  <div className="bg-blue-100 p-3 rounded-lg mr-4">
+                    <FaInfoCircle className="text-blue-600 text-xl" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                      Availability
+                    </h3>
+                    <p className="text-gray-700 whitespace-pre-line">
+                      {profile.availabilityStart && profile.availabilityEnd
+                        ? `${profile.availabilityStart} - ${profile.availabilityEnd}`
+                        : "Not provided"}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -214,81 +456,165 @@ function MyProfile() {
             <div className="p-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                    Full Name
-                  </label>
+                  <label className="text-gray-600 font-semibold text-sm uppercase flex items-center gap-2"><FaUserMd /> Full Name</label>
                   <input
                     type="text"
                     name="name"
                     value={profile.name}
                     onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
                     placeholder="Dr. John Smith"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                    Specialization
-                  </label>
+                  <label className="text-gray-600 font-semibold text-sm uppercase flex items-center gap-2"><FaGraduationCap /> Specialization</label>
                   <input
                     type="text"
                     name="specialization"
                     value={profile.specialization}
                     onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
                     placeholder="Cardiologist"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                    Hospital
-                  </label>
+                  <label className="text-gray-600 font-semibold text-sm uppercase flex items-center gap-2"><FaGraduationCap /> Qualification</label>
+                  <input
+                    type="text"
+                    name="qualification"
+                    value={profile.qualification}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="text-gray-600 font-semibold text-sm uppercase flex items-center gap-2"><FaClock /> Experience (Years)</label>
+                  <input
+                    type="number"
+                    name="experienceYears"
+                    value={profile.experienceYears}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="text-gray-600 font-semibold text-sm uppercase flex items-center gap-2"><FaDollarSign /> Consultation Fee</label>
+                  <input
+                    type="number"
+                    name="consultationFee"
+                    value={profile.consultationFee}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="text-gray-600 font-semibold text-sm uppercase flex items-center gap-2"><FaHospital /> Hospital</label>
                   <input
                     type="text"
                     name="hospital"
                     value={profile.hospital}
                     onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
                     placeholder="City Medical Center"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                    Contact Number
-                  </label>
+                  <label className="text-gray-600 font-semibold text-sm uppercase flex items-center gap-2"><FaPhoneAlt /> Phone Number</label>
                   <input
                     type="tel"
-                    name="contactNumber"
-                    value={profile.contactNumber}
+                    name="phoneNumber"
+                    value={profile.phoneNumber}
                     onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="+1 234 567 890"
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+                    placeholder="+92 300 1234567"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="text-gray-600 font-semibold text-sm uppercase flex items-center gap-2"><FaCalendarAlt /> Date of Birth</label>
+                  <input
+                    type="date"
+                    name="dateOfBirth"
+                    value={profile.dateOfBirth}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="text-gray-600 font-semibold text-sm uppercase flex items-center gap-2"><FaHome /> Address</label>
+                  <textarea
+                    name="address"
+                    value={profile.address}
+                    onChange={handleChange}
+                    rows="3"
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+                    required
+                  ></textarea>
+                </div>
+
+                <div className="mb-6">
+                  <label className="text-gray-600 font-semibold text-sm uppercase flex items-center gap-2"><BsInfoCircleFill /> Professional Bio</label>
+                  <textarea
+                    name="bio"
+                    value={profile.bio}
+                    onChange={handleChange}
+                    rows="3"
+                    className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 mt-2"
+                    placeholder="Brief description about your professional background..."
                     required
                   />
                 </div>
               </div>
 
-              <div className="mb-6">
-                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
-                  Professional Bio
+              <div className="flex">
+                <label className="text-gray-600 font-semibold  uppercase flex items-center gap-2 mb-1 me-5">
+                  <FaClock /> Availability
                 </label>
-                <textarea
-                  name="bio"
-                  value={profile.bio}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[120px]"
-                  placeholder="Brief description about your professional background..."
-                  required
-                />
+                <div className="flex flex-wrap gap-4 ">
+                  {/* From Time */}
+                  <div className="flex">
+                    <label className="text-gray-600 text-xs font-medium me-4 mt-4">FROM</label>
+                    <input
+                      type="time"
+                      name="availabilityStart"
+                      value={profile.availabilityStart}
+                      onChange={handleChange}
+                      required
+                      className="p-3 border border-gray-300 rounded-lg min-w-[150px]"
+                    />
+                  </div>
+
+                  {/* To Time */}
+                  <div className="flex ">
+                    <label className="text-gray-600 text-xs font-medium ms-2 me-6 mt-4">TO</label>
+                    <input
+                      type="time"
+                      name="availabilityEnd"
+                      value={profile.availabilityEnd}
+                      onChange={handleChange}
+                      required
+                      className="p-3 border border-gray-300 rounded-lg min-w-[150px]"
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="flex justify-end space-x-4">
+              <div className="flex justify-end space-x-4 mt-4">
                 <motion.button
                   type="button"
                   className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
